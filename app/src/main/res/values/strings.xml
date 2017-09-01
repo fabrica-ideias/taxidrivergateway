@@ -1,0 +1,18 @@
+<resources>
+    <string name="bt_error">Seu dispositivo não suporta Bluetooth</string>
+
+    <string name="app_name">TaxiDriverGateway</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="cadastro_beacon_menu_txt">Cadastro Beacon</string>
+    <string name="relatorio_beacon_menu_txt">Relatório Beacon</string>
+    <string name="scan_beacon_menu_txt">Scan Beacon</string>
+    <string name="teste_con_menu_txt">Testar Conexão</string>
+    <string name="sair_menu_txt">Sair</string>
+
+    <string name="numero_beacon_label">Beacon</string>
+    <string name="ip_gateway_hint">IP do Gateway</string>
+</resources>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/cadastro_beacon"
+            android:icon="@drawable/ic_menu_camera"
+            android:title="@string/cadastro_beacon_menu_txt" />
+        <item
+            android:id="@+id/relatorio_beacon"
+            android:icon="@drawable/ic_menu_gallery"
+            android:title="@string/relatorio_beacon_menu_txt" />
+        <item
+            android:id="@+id/scan_beacon"
+            android:icon="@drawable/ic_menu_slideshow"
+            android:title="@string/scan_beacon_menu_txt" />
+        <item
+            android:id="@+id/teste_con"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="@string/teste_con_menu_txt" />
+        <item
+            android:id="@+id/sair"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="@string/sair_menu_txt" />
+    </group>
+
+</menu>
