@@ -15,4 +15,7 @@
 
     <string name="numero_beacon_label">Beacon</string>
     <string name="ip_gateway_hint">IP do Gateway</string>
+
+    <string name="nome_beacon_hint">Nome amigável do Beacon</string>
+    <string name="finalizar_cadastro_beacon_btn">Cadastrar</string>
 </resources>
