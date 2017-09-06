@@ -16,16 +16,18 @@ import android.widget.ArrayAdapter
 import android.widget.TextView
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_cadastro_beacon.*
+import java.util.*
 
 class CadastroBeaconActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
+    private val lista_rssi = Hashtable<String,String>()
     override fun onItemClick(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
         val view = p1 as TextView
-        val cadastroBeaconDialog = CadastroBeaconDialog(this@CadastroBeaconActivity)
         when(p1.parent)
         {
             listview_dispositivos->
             {
                 val mac_dispositivo = view.text.toString()
+                val cadastroBeaconDialog = CadastroBeaconDialog(this@CadastroBeaconActivity,mac_dispositivo)
                 cadastroBeaconDialog.show()
             }
         }
@@ -49,6 +51,9 @@ class CadastroBeaconActivity : AppCompatActivity(), AdapterView.OnItemClickListe
         if(lista_dispositivos.getPosition(dispositivoNome) == -1)
             lista_dispositivos.add(dispositivoNome)
     }
+    val getRssi = { mac: String ->
+        lista_rssi[mac]
+    }
     private val callback = object : ScanCallback()
     {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
@@ -57,6 +62,7 @@ class CadastroBeaconActivity : AppCompatActivity(), AdapterView.OnItemClickListe
             {
                 try {
                     addDispotivo(result!!.device.address)
+                    lista_rssi.put(result.device.address, result.rssi.toString())
                     Log.d("modo padrão","detectado")
                 }catch(e: Exception)
                 {
