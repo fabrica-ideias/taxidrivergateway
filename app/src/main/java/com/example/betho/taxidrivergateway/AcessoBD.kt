@@ -59,6 +59,7 @@ class AcessoBD(private val query: String, private val c: Context, private val di
                 else
                 {
                     dialog?.dismiss()
+                    SucessoDialog(c).show()
                 }
             }
         }

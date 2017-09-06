@@ -21,7 +21,7 @@ class CadastroBeaconDialog(private val c: Context, private val mac : String) : D
             if(lista_carros.selectedItem.toString().split(" - ")[0] == "0")
                 query = "INSERT INTO Beacon VALUES (LAST_INSERT_ID(),'${beacon_nome.text}','${cadastroBeaconActivity.getRssi(mac)}',1,'$mac')"
             else
-                query = ""
+                query = "INSERT INTO Beacon VALUES (LAST_INSERT_ID(),'${beacon_nome.text}','${cadastroBeaconActivity.getRssi(mac)}',1,'$mac');INSERT INTO Carro VALUES()"
             acessoBD = AcessoBD(query, c, this, false)
             acessoBD.execute()
         }
