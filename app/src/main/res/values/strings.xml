@@ -9,6 +9,7 @@
 
     <string name="beacon_numero_txt">\?</string>
     <string name="sensibilidade_txt">Sensibilidade</string>
+    <string name="latencia_txt">Latência</string>
     <string name="action_settings">Settings</string>
     <string name="cadastro_beacon_menu_txt">Cadastro Beacon</string>
     <string name="relatorio_beacon_menu_txt">Relatório Beacon</string>
