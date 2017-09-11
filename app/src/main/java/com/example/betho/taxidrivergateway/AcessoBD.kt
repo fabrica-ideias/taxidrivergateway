@@ -6,6 +6,7 @@ import android.os.AsyncTask
 import android.util.Log
 import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.main.cadastro_beacon_dialog_layout.*
+import kotlinx.android.synthetic.main.content_main.*
 import java.sql.DriverManager
 import java.sql.ResultSet
 import java.sql.SQLException
@@ -21,10 +22,10 @@ class AcessoBD(private val query: String, private val c: Context, private val di
     override fun doInBackground(vararg p0: Unit?): ResultSet? {
         Class.forName("com.mysql.jdbc.Driver").newInstance()
         var resultSet : ResultSet? = null
+        val con = DriverManager.getConnection(url,user,pass)
+        val smt = con.createStatement()
         try
         {
-            val con = DriverManager.getConnection(url,user,pass)
-            val smt = con.createStatement()
             if(actionFlag)
                 resultSet = smt.executeQuery(query)
             else
@@ -60,6 +61,31 @@ class AcessoBD(private val query: String, private val c: Context, private val di
                 {
                     dialog?.dismiss()
                     SucessoDialog(c).show()
+                }
+            }
+            is MainActivity->
+            {
+                if(actionFlag)
+                {
+                    try {
+                        val sqlite = AcessoSQLite(c,"beacons",null,1)
+                        while(result!!.next())
+                        {
+                            sqlite.insert("INSERT INTO Beacon VALUES (${result.getString(1)},${result.getString(2)},${result.getString(3)},${result.getString(4)},${result.getString(5)})")
+                        }
+                    }catch (e: SQLException)
+                    {
+                        e.printStackTrace()
+                    }
+                    catch(e: KotlinNullPointerException)
+                    {
+                        Log.d("resultado","nulo")
+                        e.printStackTrace()
+                    }
+                }
+                else
+                {
+
                 }
             }
         }
