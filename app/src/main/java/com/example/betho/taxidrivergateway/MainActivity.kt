@@ -49,6 +49,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val intent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
         startActivityForResult(intent,1)
     }
+    private val distancia = { rssi : Int ->
+        val rssiAtOneMetter = -38.0
+        val distance = Math.pow(10.0,(rssiAtOneMetter - rssi)/20)
+        distance.toString()
+    }
     private val callback = object : ScanCallback()
     {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
@@ -73,6 +78,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             super.onScanFailed(errorCode)
         }
     }
+
+    val recuperarDadosOnline = {
+        acessoBD = AcessoBD("SELECT * FROM Beacon",this@MainActivity,null,true)
+        acessoBD.execute()
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -84,8 +94,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
         nav_view.setNavigationItemSelectedListener(this)
-        acessoBD = AcessoBD("SELECT * FROM Beacon",this@MainActivity,null,true)
-        acessoBD.execute()
+        recuperarDadosOnline()
+        EstadoDispositivo(this@MainActivity).run()
         when
         {
             bt_adapter == null -> toast(R.string.bt_error)
@@ -98,6 +108,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
+    override fun onResume() {
+        recuperarDadosOnline()
+        super.onResume()
+    }
     override fun onBackPressed() {
         if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
             drawer_layout.closeDrawer(GravityCompat.START)

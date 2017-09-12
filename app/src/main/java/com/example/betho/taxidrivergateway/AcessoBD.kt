@@ -1,5 +1,6 @@
 package com.example.betho.taxidrivergateway
 
+import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.os.AsyncTask
@@ -8,9 +9,12 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import kotlinx.android.synthetic.main.cadastro_beacon_dialog_layout.*
 import org.jetbrains.anko.db.insert
+import org.jetbrains.anko.longToast
+import java.net.UnknownHostException
 import java.sql.DriverManager
 import java.sql.ResultSet
 import java.sql.SQLException
+
 /**
 * Created by hugo on 04/09/17.
 */
@@ -21,15 +25,22 @@ class AcessoBD(private val query: String, private val c: Context, private val di
     override fun doInBackground(vararg p0: Unit?): ResultSet? {
         Class.forName("com.mysql.jdbc.Driver").newInstance()
         var resultSet : ResultSet? = null
-        val con = DriverManager.getConnection(url,user,pass)
-        val smt = con.createStatement()
         try
         {
+            val con = DriverManager.getConnection(url,user,pass)
+            val smt = con.createStatement()
             if(actionFlag)
                 resultSet = smt.executeQuery(query)
             else
                 smt.execute(query)
-        }catch(e: SQLException)
+        }catch (e: UnknownHostException)
+        {
+            e.printStackTrace()
+            c.longToast(R.string.sem_rede_aviso)
+            Log.d("TESTEEEE","AAASDASDASHDASDJSABDHJBASDASBDJBAHSDBASJDBASJBDASJHDSB")
+            val aux = c as Activity
+            //aux.finish()
+        }catch (e: SQLException)
         {
             e.printStackTrace()
         }

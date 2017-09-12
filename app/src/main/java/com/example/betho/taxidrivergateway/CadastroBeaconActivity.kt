@@ -16,6 +16,10 @@ import android.widget.ArrayAdapter
 import android.widget.TextView
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_cadastro_beacon.*
+import org.jetbrains.anko.alert
+import org.jetbrains.anko.customView
+import org.jetbrains.anko.noButton
+import org.jetbrains.anko.yesButton
 import java.util.*
 
 class CadastroBeaconActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
@@ -27,8 +31,12 @@ class CadastroBeaconActivity : AppCompatActivity(), AdapterView.OnItemClickListe
             listview_dispositivos->
             {
                 val mac_dispositivo = view.text.toString()
-                val cadastroBeaconDialog = CadastroBeaconDialog(this@CadastroBeaconActivity,mac_dispositivo)
-                cadastroBeaconDialog.show()
+//                val cadastroBeaconDialog = CadastroBeaconDialog(this@CadastroBeaconActivity,mac_dispositivo)
+//                cadastroBeaconDialog.show()
+                alert {
+                    yesButton { customView {  } }
+                    noButton {}
+                }.show()
             }
         }
     }

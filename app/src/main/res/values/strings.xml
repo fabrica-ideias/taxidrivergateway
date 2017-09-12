@@ -18,6 +18,7 @@
     <string name="teste_con_menu_txt">Testar Conexão</string>
     <string name="sair_menu_txt">Sair</string>
     <string name="sensibilidade_latencia_valor_padrao">0</string>
+    <string name="sem_rede_aviso">Não há conexão de dados disponível</string>
 
     <string name="numero_beacon_label">Beacon</string>
     <string name="ip_gateway_hint">IP do Gateway</string>
