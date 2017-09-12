@@ -12,7 +12,7 @@ class AcessoSQLite(c: Context) : ManagedSQLiteOpenHelper(c,"beacons",null,1) {
     private val RSSI = "rssi"
     private val DISTANCIA = "distancia"
     private val MAC = "mac"
-    private var db : SQLiteDatabase? = null
+    private lateinit var db : SQLiteDatabase
     companion object {
         private var instance: AcessoSQLite? = null
 
@@ -25,13 +25,13 @@ class AcessoSQLite(c: Context) : ManagedSQLiteOpenHelper(c,"beacons",null,1) {
         }
     }
 
-    override fun onCreate(p0: SQLiteDatabase?) {
-        p0?.createTable("Beacon", true,  MAC to TEXT + PRIMARY_KEY,NOME to TEXT, RSSI to TEXT, DISTANCIA to REAL)
+    override fun onCreate(p0: SQLiteDatabase) {
+        p0.createTable("Beacon", true,  MAC to TEXT + PRIMARY_KEY,NOME to TEXT, RSSI to TEXT, DISTANCIA to REAL)
         db = p0
     }
 
-    override fun onUpgrade(p0: SQLiteDatabase?, p1: Int, p2: Int) {
-        p0?.dropTable("Beacon")
+    override fun onUpgrade(p0: SQLiteDatabase, p1: Int, p2: Int) {
+        p0.dropTable("Beacon")
         this.onCreate(p0)
     }
     val Context.database: AcessoSQLite

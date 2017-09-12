@@ -7,6 +7,7 @@ import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import kotlinx.android.synthetic.main.cadastro_beacon_dialog_layout.*
+import org.jetbrains.anko.db.insert
 import java.sql.DriverManager
 import java.sql.ResultSet
 import java.sql.SQLException
@@ -14,7 +15,6 @@ import java.sql.SQLException
 * Created by hugo on 04/09/17.
 */
 class AcessoBD(private val query: String, private val c: Context, private val dialog : Dialog?, private val actionFlag : Boolean) : AsyncTask<Unit,Unit,ResultSet>() {
-    private val entries = ArrayList<String>()
     private val user = "eswwe2adzte58aou"
     private val pass = "wp3f4xc9yboetlll"
     private val url = "jdbc:mysql://ffn96u87j5ogvehy.cbetxkdyhwsb.us-east-1.rds.amazonaws.com/znhi6rzef19zuaml"
@@ -70,9 +70,8 @@ class AcessoBD(private val query: String, private val c: Context, private val di
                         val sqlite = AcessoSQLite(c)
                         while(result!!.next())
                         {
-                            sqlite.writableDatabase.rawQuery("INSERT INTO Beacon VALUES ('${result.getString(5)}','${result.getString(2)}','${result.getString(3)}','${result.getString(4)}')",null)
+                            sqlite.use { insert("Beacon", "mac" to result.getString(5), "nome" to result.getString(2), "rssi" to result.getString(3), "distancia" to result.getString(4)) }
                         }
-                        sqlite.close()
                     }catch (e: SQLException)
                     {
                         Toast.makeText(c,"Erro sqlite",Toast.LENGTH_SHORT).show()

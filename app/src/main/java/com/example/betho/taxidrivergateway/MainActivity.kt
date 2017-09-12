@@ -6,19 +6,18 @@ import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Intent
-import android.database.Cursor
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.SeekBar
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
+import org.jetbrains.anko.db.select
 import org.jetbrains.anko.toast
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, SeekBar.OnSeekBarChangeListener {
@@ -58,17 +57,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             {
                 try {
                     val mac = result!!.device.address
-                    val cursor : Cursor? = sqlite.readableDatabase.rawQuery("SELECT * FROM Beacon WHERE mac = '$mac'",null)
-                    while(cursor!!.moveToNext())
-                    {
-                        beacon_numero.text = cursor.getInt(1).toString()
+                    sqlite.readableDatabase.select("Beacon").whereArgs("mac = {deviceMac}", "deviceMac" to mac).exec {
+                        while(this.moveToNext())
+                            beacon_numero.text = this.getString(1)
+                        this.close()
                     }
-                    Log.d("modo padrão","detectado")
-                    cursor.close()
                 }catch(e: Exception)
                 {
                     e.printStackTrace()
-                    Log.d("exceção","modo padrão")
                 }
             }
         }
