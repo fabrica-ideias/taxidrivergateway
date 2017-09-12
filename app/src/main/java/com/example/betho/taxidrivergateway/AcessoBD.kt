@@ -5,12 +5,11 @@ import android.content.Context
 import android.os.AsyncTask
 import android.util.Log
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import kotlinx.android.synthetic.main.cadastro_beacon_dialog_layout.*
-import kotlinx.android.synthetic.main.content_main.*
 import java.sql.DriverManager
 import java.sql.ResultSet
 import java.sql.SQLException
-
 /**
 * Created by hugo on 04/09/17.
 */
@@ -68,13 +67,15 @@ class AcessoBD(private val query: String, private val c: Context, private val di
                 if(actionFlag)
                 {
                     try {
-                        val sqlite = AcessoSQLite(c,"beacons",null,1)
+                        val sqlite = AcessoSQLite(c)
                         while(result!!.next())
                         {
-                            sqlite.insert("INSERT INTO Beacon VALUES (${result.getString(1)},${result.getString(2)},${result.getString(3)},${result.getString(4)},${result.getString(5)})")
+                            sqlite.writableDatabase.rawQuery("INSERT INTO Beacon VALUES ('${result.getString(5)}','${result.getString(2)}','${result.getString(3)}','${result.getString(4)}')",null)
                         }
+                        sqlite.close()
                     }catch (e: SQLException)
                     {
+                        Toast.makeText(c,"Erro sqlite",Toast.LENGTH_SHORT).show()
                         e.printStackTrace()
                     }
                     catch(e: KotlinNullPointerException)

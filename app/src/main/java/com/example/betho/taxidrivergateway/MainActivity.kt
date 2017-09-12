@@ -15,16 +15,37 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
+import android.widget.SeekBar
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
+import org.jetbrains.anko.toast
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, SeekBar.OnSeekBarChangeListener {
+    override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
+        when(p0)
+        {
+            sensibilidade->
+            {
+                sensibilidade_valor_label.text = p1.toString()
+            }
+            latencia->
+            {
+                latencia_valor_label.text = p1.toString()
+            }
+        }
+    }
+
+    override fun onStartTrackingTouch(p0: SeekBar?) {
+    }
+
+    override fun onStopTrackingTouch(p0: SeekBar?) {
+    }
+
     private var bt_adapter : BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
     private lateinit var scanner : BluetoothLeScanner
     private lateinit var acessoBD : AcessoBD
-    private val sqlite = AcessoSQLite(this@MainActivity,"beacons",null,1)
+    private val sqlite = AcessoSQLite(this@MainActivity)
     private val enableBT = {
         val intent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
         startActivityForResult(intent,1)
@@ -37,12 +58,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             {
                 try {
                     val mac = result!!.device.address
-                    val cursor : Cursor? = sqlite.select("SELECT * FROM Beacon WHERE mac = '$mac'")
+                    val cursor : Cursor? = sqlite.readableDatabase.rawQuery("SELECT * FROM Beacon WHERE mac = '$mac'",null)
                     while(cursor!!.moveToNext())
                     {
                         beacon_numero.text = cursor.getInt(1).toString()
                     }
                     Log.d("modo padrão","detectado")
+                    cursor.close()
                 }catch(e: Exception)
                 {
                     e.printStackTrace()
@@ -58,6 +80,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        sensibilidade.setOnSeekBarChangeListener(this)
+        latencia.setOnSeekBarChangeListener(this)
         setSupportActionBar(toolbar)
         val toggle = ActionBarDrawerToggle(
                 this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
@@ -68,7 +92,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         acessoBD.execute()
         when
         {
-            bt_adapter == null -> Toast.makeText(this@MainActivity,R.string.bt_error, Toast.LENGTH_SHORT).show()
+            bt_adapter == null -> toast(R.string.bt_error)
             bt_adapter?.isEnabled == false -> enableBT()
             else -> {
                 scanner = bt_adapter!!.bluetoothLeScanner
@@ -113,6 +137,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.cadastro_beacon->
             {
                 val intent = Intent(this@MainActivity, CadastroBeaconActivity::class.java)
+                startActivity(intent)
+            }
+            R.id.relatorio_beacon->
+            {
+                val intent = Intent(this@MainActivity, RelatorioBeaconActivity::class.java)
                 startActivity(intent)
             }
         }
