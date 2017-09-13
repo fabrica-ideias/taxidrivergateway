@@ -49,11 +49,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val intent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
         startActivityForResult(intent,1)
     }
-    private val distancia = { rssi : Int ->
-        val rssiAtOneMetter = -38.0
-        val distance = Math.pow(10.0,(rssiAtOneMetter - rssi)/20)
-        distance.toString()
-    }
     private val callback = object : ScanCallback()
     {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
@@ -62,6 +57,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             {
                 try {
                     val mac = result!!.device.address
+                    val requisitaRecurso = RequisitaRecurso("http://192.168.7.100/taxidrivercall/php/status.php?mac=$mac", this@MainActivity)
+                    requisitaRecurso.execute()
                     sqlite.readableDatabase.select("Beacon").whereArgs("mac = {deviceMac}", "deviceMac" to mac).exec {
                         while(this.moveToNext())
                             beacon_numero.text = this.getString(1)
