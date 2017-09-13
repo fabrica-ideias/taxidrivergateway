@@ -31,4 +31,7 @@
 
     <string name="relatorio_beacon_txt">Beacons Cadastrados</string>
 
+    <string name="progresso_msg">Comunicando com Banco</string>
+    <string name="progresso_tittle">Aguarde</string>
+
 </resources>

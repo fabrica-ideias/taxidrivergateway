@@ -6,11 +6,8 @@ import android.os.AsyncTask
 import android.util.Log
 import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.main.cadastro_beacon_dialog_layout.*
-import org.jetbrains.anko.alert
+import org.jetbrains.anko.*
 import org.jetbrains.anko.db.insert
-import org.jetbrains.anko.longToast
-import org.jetbrains.anko.toast
-import org.jetbrains.anko.yesButton
 import java.net.UnknownHostException
 import java.sql.DriverManager
 import java.sql.ResultSet
@@ -23,6 +20,11 @@ class AcessoBD(private val query: String, private val c: Context, private val di
     private val user = "jedkdtu6vb5oo5o3"
     private val pass = "ps7auabtr43dftzs"
     private val url = "jdbc:mysql://ysp9sse09kl0tzxj.cbetxkdyhwsb.us-east-1.rds.amazonaws.com/du31xu75psg7waby"
+    private val progressDialog = c.indeterminateProgressDialog(message = R.string.progresso_msg, title = R.string.progresso_tittle)
+    override fun onPreExecute() {
+        progressDialog.show()
+        super.onPreExecute()
+    }
     override fun doInBackground(vararg p0: Unit?): ResultSet? {
         Class.forName("com.mysql.jdbc.Driver").newInstance()
         var resultSet : ResultSet? = null
@@ -46,6 +48,7 @@ class AcessoBD(private val query: String, private val c: Context, private val di
     }
 
     override fun onPostExecute(result: ResultSet?) {
+        progressDialog.dismiss()
         super.onPostExecute(result)
         when(c)
         {
