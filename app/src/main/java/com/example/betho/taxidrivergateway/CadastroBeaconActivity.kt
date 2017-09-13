@@ -29,10 +29,6 @@ class CadastroBeaconActivity : AppCompatActivity(), AdapterView.OnItemClickListe
                 val mac_dispositivo = view.text.toString()
                 val cadastroBeaconDialog = CadastroBeaconDialog(this@CadastroBeaconActivity,mac_dispositivo)
                 cadastroBeaconDialog.show()
-//                alert {
-//                    yesButton { customView {  } }
-//                    noButton {}
-//                }.show()
             }
         }
     }

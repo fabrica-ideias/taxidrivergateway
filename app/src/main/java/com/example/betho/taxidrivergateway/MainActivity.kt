@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             {
                 try {
                     val mac = result!!.device.address
-                    val requisitaRecurso = RequisitaRecurso("http://192.168.7.100/taxidrivercall/php/status.php?mac=$mac", this@MainActivity)
+                    val requisitaRecurso = RequisitaRecurso("https://taxidrivercall.000webhostapp.com/php/status.php?mac=$mac", this@MainActivity)
                     requisitaRecurso.execute()
                     sqlite.readableDatabase.select("Beacon").whereArgs("mac = {deviceMac}", "deviceMac" to mac).exec {
                         while(this.moveToNext())
