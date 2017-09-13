@@ -34,4 +34,8 @@
     <string name="progresso_msg">Comunicando com Banco</string>
     <string name="progresso_tittle">Aguarde</string>
 
+    <string name="scan_beacon_title">Beacons no Alcance</string>
+    <string name="det_beacon">Detalhes do Beacon</string>
+    <string name="rssi_label">Rssi:</string>
+
 </resources>

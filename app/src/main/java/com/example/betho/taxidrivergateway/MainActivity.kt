@@ -76,7 +76,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    val recuperarDadosOnline = {
+    private val recuperarDadosOnline = {
         sqlite.onUpgrade(sqlite.writableDatabase,sqlite.writableDatabase.version,sqlite.writableDatabase.version+1)
         acessoBD = AcessoBD("SELECT * FROM Beacon",this@MainActivity,null,true)
         acessoBD.execute()
@@ -150,6 +150,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.relatorio_beacon->
             {
                 val intent = Intent(this@MainActivity, RelatorioBeaconActivity::class.java)
+                startActivity(intent)
+            }
+            R.id.scan_beacon->
+            {
+                val intent = Intent(this@MainActivity, ScanBeaconActivity::class.java)
                 startActivity(intent)
             }
         }
