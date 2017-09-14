@@ -13,7 +13,8 @@
     <string name="sensibilidade_txt">Sensibilidade</string>
     <string name="latencia_txt">Latência</string>
     <string name="action_settings">Settings</string>
-    <string name="cadastro_beacon_menu_txt">Cadastro Beacon</string>
+    <string name="cadastro_beacon_menu_txt">Cadastrar Beacon</string>
+    <string name="cadastro_carro_menu_txt">Cadastrar Carro</string>
     <string name="relatorio_beacon_menu_txt">Relatório Beacon</string>
     <string name="scan_beacon_menu_txt">Scan Beacon</string>
     <string name="teste_con_menu_txt">Testar Conexão</string>
@@ -37,5 +38,17 @@
     <string name="scan_beacon_title">Beacons no Alcance</string>
     <string name="det_beacon">Detalhes do Beacon</string>
     <string name="rssi_label">Rssi:</string>
+    <string name="distancia_label">Distância:</string>
 
+
+    <string name="cadastro_carro_titulo">Cadastro de Carros</string>
+    <string name="carro_nome_hint">Nome do Carro</string>
+    <string name="placa_carro_hint">Placa do Carro</string>
+    <string name="cadastro_carro_btn">Cadastrar Carro</string>
+    <string name="validacao_cadastro_msg">Preencha todos os campos</string>
+
+    <string name="teste_con_ok">Comunicação com internet bem sucessedida</string>
+    <string name="teste_con_erro">Comunicação com internet falhou</string>
+    <string name="teste_con_title">Pressione o botão para testar comunicação</string>
+    <string name="teste_con_btn">Testar</string>
 </resources>

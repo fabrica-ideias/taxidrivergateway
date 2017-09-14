@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <application
         android:allowBackup="true"
@@ -18,6 +18,7 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,7 +29,8 @@
         <activity android:name=".CadastroBeaconActivity" />
         <activity android:name=".RelatorioBeaconActivity" />
         <activity android:name=".TesteActivity" />
-        <activity android:name=".ScanBeaconActivity"></activity>
+        <activity android:name=".ScanBeaconActivity" />
+        <activity android:name=".CadastroCarroActivity"></activity>
     </application>
 
 </manifest>

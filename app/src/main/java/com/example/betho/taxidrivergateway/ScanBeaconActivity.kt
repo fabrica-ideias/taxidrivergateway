@@ -6,9 +6,11 @@ import android.bluetooth.le.BluetoothLeScanner
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.View
 import android.widget.*
 import kotlinx.android.synthetic.main.activity_scan_beacon.*
@@ -23,7 +25,7 @@ class ScanBeaconActivity : AppCompatActivity(), AdapterView.OnItemClickListener 
         {
             beacon_lista->
             {
-                alert(R.string.det_beacon)
+                dialog = alert(R.string.det_beacon)
                 {
                     customView {
                         linearLayout {
@@ -32,17 +34,37 @@ class ScanBeaconActivity : AppCompatActivity(), AdapterView.OnItemClickListener 
                                 orientation = LinearLayout.HORIZONTAL
                                 textView{
                                     setText(R.string.rssi_label)
-                                    textSize = 20f
+                                    padding = dip(10)
                                 }
                                 textView{
                                     text = lista_rssi[texto].toString()
-                                    id = 1
                                 }
                             }
-                        }
+                            linearLayout {
+                                orientation = LinearLayout.HORIZONTAL
+                                textView {
+                                    setText(R.string.distancia_label)
+                                    padding = dip(10)
+                                }
+                                textView {
+                                    doAsync {
+                                        while(dialog != null)
+                                        {
+                                            text = distancia(lista_rssi[texto]!!)
+                                        }
+                                    }
+
+                                }
+                            }
+                        }.applyRecursively { view -> when(view){
+                            is TextView-> view.textSize = 20F
+                        } }
                     }
-                    okButton {  }
-                }.show()
+                    okButton {
+                        Log.d("dialog","ok btn")
+                        dialog = null }
+                }
+                dialog?.show()
             }
         }
     }
@@ -51,6 +73,7 @@ class ScanBeaconActivity : AppCompatActivity(), AdapterView.OnItemClickListener 
     private lateinit var scanner : BluetoothLeScanner
     private lateinit var lista_dispositivos : ArrayAdapter<String>
     private val lista_rssi = Hashtable<String,Int>()
+    private var dialog: AlertBuilder<DialogInterface>? = null
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when(resultCode)
@@ -61,6 +84,11 @@ class ScanBeaconActivity : AppCompatActivity(), AdapterView.OnItemClickListener 
                 scanner.startScan(callback)
             }
         }
+    }
+    private val distancia = { rssi : Int ->
+        val rssiAtOneMetter = -47.0
+        val distance = Math.pow(10.0,(rssiAtOneMetter - rssi)/20)
+        distance.toString()
     }
     private val callback = object : ScanCallback()
     {
@@ -74,6 +102,7 @@ class ScanBeaconActivity : AppCompatActivity(), AdapterView.OnItemClickListener 
                         lista_dispositivos.add(result.device.address)
                     }
                     lista_rssi.put(result.device.address,result.rssi)
+
                 }catch(e: Exception)
                 {
                     e.printStackTrace()

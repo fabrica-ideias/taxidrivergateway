@@ -4,23 +4,27 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/cadastro_beacon"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@drawable/ic_bluetooth_black_24dp"
             android:title="@string/cadastro_beacon_menu_txt" />
         <item
+            android:id="@+id/cadastro_carro"
+            android:icon="@drawable/ic_directions_car_black_24dp"
+            android:title="@string/cadastro_carro_menu_txt" />
+        <item
             android:id="@+id/relatorio_beacon"
-            android:icon="@drawable/ic_menu_gallery"
+            android:icon="@drawable/ic_report_black_24dp"
             android:title="@string/relatorio_beacon_menu_txt" />
         <item
             android:id="@+id/scan_beacon"
-            android:icon="@drawable/ic_menu_slideshow"
+            android:icon="@drawable/ic_bluetooth_searching_black_24dp"
             android:title="@string/scan_beacon_menu_txt" />
         <item
             android:id="@+id/teste_con"
-            android:icon="@drawable/ic_menu_manage"
+            android:icon="@drawable/ic_signal_cellular_connected_no_internet_3_bar_black_24dp"
             android:title="@string/teste_con_menu_txt" />
         <item
             android:id="@+id/sair"
-            android:icon="@drawable/ic_menu_manage"
+            android:icon="@drawable/ic_exit_to_app_black_24dp"
             android:title="@string/sair_menu_txt" />
     </group>
 

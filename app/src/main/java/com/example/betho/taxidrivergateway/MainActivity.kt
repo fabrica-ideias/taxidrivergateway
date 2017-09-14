@@ -7,6 +7,7 @@ import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.content.Intent
+import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
@@ -20,9 +21,6 @@ import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import org.jetbrains.anko.db.select
 import org.jetbrains.anko.toast
-import android.net.wifi.WifiManager
-import java.net.InetAddress
-import java.util.*
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, SeekBar.OnSeekBarChangeListener {
@@ -50,7 +48,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var scanner : BluetoothLeScanner
     private lateinit var acessoBD : AcessoBD
     private val sqlite = AcessoSQLite(this@MainActivity)
-    private lateinit var wm : WifiManager
     private val enableBT = {
         val intent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
         startActivityForResult(intent,1)
@@ -163,6 +160,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             {
                 val intent = Intent(this@MainActivity, ScanBeaconActivity::class.java)
                 startActivity(intent)
+            }
+            R.id.cadastro_carro->
+            {
+                val intent = Intent(this@MainActivity, CadastroCarroActivity::class.java)
+                startActivity(intent)
+            }
+            R.id.teste_con->
+            {
+                val intent = Intent(this@MainActivity, TesteActivity::class.java)
+                startActivity(intent)
+            }
+            R.id.sair->
+            {
+                finish()
             }
         }
         drawer_layout.closeDrawer(GravityCompat.START)

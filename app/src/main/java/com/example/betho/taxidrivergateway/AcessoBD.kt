@@ -1,5 +1,6 @@
 package com.example.betho.taxidrivergateway
 
+import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.os.AsyncTask
@@ -21,6 +22,13 @@ class AcessoBD(private val query: String, private val c: Context, private val di
     private val pass = "ps7auabtr43dftzs"
     private val url = "jdbc:mysql://ysp9sse09kl0tzxj.cbetxkdyhwsb.us-east-1.rds.amazonaws.com/du31xu75psg7waby"
     private val progressDialog = c.indeterminateProgressDialog(message = R.string.progresso_msg, title = R.string.progresso_tittle)
+    private val dialogSucesso = {
+        val aux = c as Activity
+        c.alert(R.string.sucesso_msg)
+        {
+            yesButton { aux.finish() }
+        }.show()
+    }
     override fun onPreExecute() {
         progressDialog.show()
         super.onPreExecute()
@@ -74,11 +82,7 @@ class AcessoBD(private val query: String, private val c: Context, private val di
                 else
                 {
                     dialog?.dismiss()
-                    c.alert(R.string.sucesso_msg)
-                    {
-                        yesButton { c.finish() }
-                    }.show()
-
+                    dialogSucesso()
                 }
             }
             is MainActivity->
@@ -89,7 +93,7 @@ class AcessoBD(private val query: String, private val c: Context, private val di
                         val sqlite = AcessoSQLite(c)
                         while(result!!.next())
                         {
-                            sqlite.use { insert("Beacon", "mac" to result.getString(1), "nome" to result.getString(4), "rssi" to result.getString(2), "distancia" to result.getString(3)) }
+                                sqlite.use { insert("Beacon", "mac" to result.getString(1), "nome" to result.getString(4), "rssi" to result.getString(2), "distancia" to result.getString(3)) }
                         }
                     }catch (e: SQLException)
                     {
@@ -105,6 +109,17 @@ class AcessoBD(private val query: String, private val c: Context, private val di
                 else
                 {
 
+                }
+            }
+            is CadastroCarroActivity->
+            {
+                if(actionFlag)
+                {
+
+                }
+                else
+                {
+                    dialogSucesso()
                 }
             }
         }
