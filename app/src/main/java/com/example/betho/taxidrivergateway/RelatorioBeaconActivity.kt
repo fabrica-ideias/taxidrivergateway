@@ -61,7 +61,7 @@ class RelatorioBeaconActivity : AppCompatActivity(), AdapterView.OnItemClickList
         sqlite = AcessoSQLite(this@RelatorioBeaconActivity)
         //val cursor = sqlite.readableDatabase.rawQuery("SELECT * FROM Beacon INNER JOIN ON Carro.fk_beacon=Beacon.mac",null)
         try {
-            val query = "SELECT * FROM Beacon INNER JOIN ON Carro.fk_beacon=Beacon.mac";
+            val query = "SELECT * FROM Beacon INNER JOIN Carro ON Carro.fk_beacon=Beacon.mac";
             val acessoDB = AcessoBD(query, this@RelatorioBeaconActivity, null, true)
             acessoDB.execute()
             lista_cadastrados.adapter = adapter
