@@ -25,6 +25,21 @@ class RequisitaRecurso(private val url: String, private val c: Context) : AsyncT
                     urlConnection.disconnect()
                 }
             }
+            is TesteActivity->
+            {
+                val url = URL(url)
+                var urlConnection = url.openConnection() as HttpURLConnection
+                return try {
+                    BufferedInputStream(urlConnection.inputStream)
+                    true
+                }catch (e: Exception)
+                {
+                    e.printStackTrace()
+                    false
+                }finally {
+                    urlConnection.disconnect()
+                }
+            }
             else ->
                 return false
         }

@@ -10,7 +10,7 @@ class TesteActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_teste)
         teste_btn.setOnClickListener { _ ->
-
+            val test = RequisitaRecurso("",this@TesteActivity).execute()
         }
     }
 }

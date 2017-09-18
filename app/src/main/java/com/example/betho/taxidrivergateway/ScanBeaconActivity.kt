@@ -47,12 +47,7 @@ class ScanBeaconActivity : AppCompatActivity(), AdapterView.OnItemClickListener 
                                     padding = dip(10)
                                 }
                                 textView {
-                                    doAsync {
-                                        while(dialog != null)
-                                        {
-                                            text = distancia(lista_rssi[texto]!!)
-                                        }
-                                    }
+                                    text = distancia(lista_rssi[texto]!!)
 
                                 }
                             }

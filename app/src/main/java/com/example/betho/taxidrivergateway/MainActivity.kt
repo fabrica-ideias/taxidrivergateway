@@ -60,11 +60,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             {
                 try {
                     val mac = result!!.device.address
-                    val requisitaRecurso = RequisitaRecurso("http://192.168.7.100/taxidrivercall/php/status.php?mac=$mac", this@MainActivity)
+                    val requisitaRecurso = RequisitaRecurso("http://taxidrivercall.000webhostapp.com/php/status.php?mac=$mac", this@MainActivity)
                     requisitaRecurso.execute()
                     sqlite.readableDatabase.select("Beacon").whereArgs("mac = {deviceMac}", "deviceMac" to mac).exec {
                         while(this.moveToNext())
+                        {
                             beacon_numero.text = this.getString(1)
+                            mac_detectado.text = mac
+                        }
                         this.close()
                     }
                 }catch(e: Exception)
@@ -89,6 +92,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setContentView(R.layout.activity_main)
         sensibilidade.setOnSeekBarChangeListener(this)
         latencia.setOnSeekBarChangeListener(this)
+
         GetLocalHostTask(ip_gateway, getSystemService(Context.WIFI_SERVICE) as WifiManager).execute()
         setSupportActionBar(toolbar)
         val toggle = ActionBarDrawerToggle(

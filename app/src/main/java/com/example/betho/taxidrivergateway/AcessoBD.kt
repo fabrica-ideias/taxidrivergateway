@@ -65,10 +65,10 @@ class AcessoBD(private val query: String, private val c: Context, private val di
                 if(actionFlag)
                 {
                     val arrayAdapter = ArrayAdapter<String>(c, R.layout.list_layout)
-                    arrayAdapter.add("0 - Nenhum")
+                    arrayAdapter.add("0-Nenhum")
                     try {
                         while(result!!.next())
-                            arrayAdapter.add("${result.getString(1)} - ${result.getString(4)}")
+                            arrayAdapter.add(result.getString(1))
                     }catch(e : SQLException)
                     {
                         e.printStackTrace()
@@ -120,6 +120,21 @@ class AcessoBD(private val query: String, private val c: Context, private val di
                 else
                 {
                     dialogSucesso()
+                }
+            }
+            is RelatorioBeaconActivity->
+            {
+                try {
+                    while(result!!.next())
+                    {
+                        Log.d("teste",result.getString(1))
+                    }
+                }catch (e: SQLException)
+                {
+
+                }catch (e: KotlinNullPointerException)
+                {
+
                 }
             }
         }
