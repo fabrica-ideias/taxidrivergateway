@@ -13,6 +13,7 @@ import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.SeekBar
@@ -21,9 +22,13 @@ import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import org.jetbrains.anko.db.select
 import org.jetbrains.anko.toast
+import java.util.*
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, SeekBar.OnSeekBarChangeListener {
+companion object {
+    val mac_contador = Hashtable<String,Int>()
+}
     override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
         when(p0)
         {
@@ -48,6 +53,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var scanner : BluetoothLeScanner
     private lateinit var acessoBD : AcessoBD
     private val sqlite = AcessoSQLite(this@MainActivity)
+    private lateinit var intermitente : Intermitente
+
     private val enableBT = {
         val intent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
         startActivityForResult(intent,1)
@@ -62,6 +69,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     val mac = result!!.device.address
                     val requisitaRecurso = RequisitaRecurso("http://taxidrivercall.000webhostapp.com/php/status.php?mac=$mac", this@MainActivity)
                     requisitaRecurso.execute()
+                    if(mac_contador[mac] == null || mac_contador[mac] == 0)
+                    {
+                        mac_contador[mac] = 1
+                    }
+                    else
+                    {
+                        var aux : Int = mac_contador[mac]!!
+                        aux+=1
+                        mac_contador[mac] = aux
+                    }
+                    intermitente = Intermitente(mac, mac_contador[mac]!!)
+                    if(mac_contador[mac] == 3)
+                    {
+                        mac_contador[mac] = 0
+                    }
                     sqlite.readableDatabase.select("Beacon").whereArgs("mac = {deviceMac}", "deviceMac" to mac).exec {
                         while(this.moveToNext())
                         {
@@ -92,6 +114,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setContentView(R.layout.activity_main)
         sensibilidade.setOnSeekBarChangeListener(this)
         latencia.setOnSeekBarChangeListener(this)
+        try {
+            Timer(true).schedule(intermitente, 0, 3000)
+        }catch (e: UninitializedPropertyAccessException)
+        {
+            Log.d("Timer intermitente", "ainda não inicializado")
+        }
 
         GetLocalHostTask(ip_gateway, getSystemService(Context.WIFI_SERVICE) as WifiManager).execute()
         setSupportActionBar(toolbar)
