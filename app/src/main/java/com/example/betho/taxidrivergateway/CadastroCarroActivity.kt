@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_cadastro_carro.*
 import org.jetbrains.anko.toast
 
@@ -12,6 +13,8 @@ class CadastroCarroActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cadastro_carro)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setHomeButtonEnabled(true)
         placa_carro.addTextChangedListener(object: TextWatcher{
             override fun afterTextChanged(p0: Editable?) {
             }
@@ -38,5 +41,10 @@ class CadastroCarroActivity : AppCompatActivity() {
                 AcessoBD("INSERT INTO Carro VALUES('$placa',NULL,2,3,'$nome')",this@CadastroCarroActivity,null,false).execute()
             }
         }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        finish()
+        return super.onOptionsItemSelected(item)
     }
 }

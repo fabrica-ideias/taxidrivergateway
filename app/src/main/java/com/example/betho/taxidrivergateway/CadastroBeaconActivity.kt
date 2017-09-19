@@ -10,6 +10,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -36,7 +37,7 @@ class CadastroBeaconActivity : AppCompatActivity(), AdapterView.OnItemClickListe
                     {
                         alert(R.string.beacon_ja_cadastrado) {
                             yesButton {
-                                val atualizarBeacon = AtualizarCadastroBeaconDialog(this@CadastroBeaconActivity)
+                                val atualizarBeacon = AtualizarCadastroBeaconDialog(this@CadastroBeaconActivity,mac_dispositivo)
                                 atualizarBeacon.show()
                             }
                             noButton {  }
@@ -98,6 +99,8 @@ class CadastroBeaconActivity : AppCompatActivity(), AdapterView.OnItemClickListe
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cadastro_beacon)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setHomeButtonEnabled(true)
         lista_dispositivos = ArrayAdapter(this@CadastroBeaconActivity,R.layout.list_layout)
         listview_dispositivos.adapter = lista_dispositivos
         listview_dispositivos.onItemClickListener = this
@@ -111,6 +114,11 @@ class CadastroBeaconActivity : AppCompatActivity(), AdapterView.OnItemClickListe
             }
 
         }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        finish()
+        return super.onOptionsItemSelected(item)
     }
     private val enableBT = {
         val intent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)

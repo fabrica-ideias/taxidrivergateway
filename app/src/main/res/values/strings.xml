@@ -49,6 +49,10 @@
     <string name="rssi_label">Rssi:</string>
     <string name="distancia_label">Distância:</string>
 
+    <string name="carro_detalhes_title">Detalhes do Carro</string>
+
+    <string name="nome_carro_label">Nome amigável:</string>
+    <string name="beacon_associado_label">Beacon associado:</string>
 
     <string name="cadastro_carro_titulo">Cadastro de Carros</string>
     <string name="carro_nome_hint">Nome do Carro</string>
@@ -65,4 +69,6 @@
 
     <string name="carro_cadastrado_label">Carro cadastrado:</string>
     <string name="deteccoes_beacon_label">Numero de detecções:</string>
+    <string name="nome_beacon_label">Nome do beacon:</string>
+    <string name="ultima_deteccao_beacon">Última Detecção</string>
 </resources>

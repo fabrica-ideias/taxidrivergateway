@@ -14,6 +14,7 @@ import java.net.UnknownHostException
 import java.sql.DriverManager
 import java.sql.ResultSet
 import java.sql.SQLException
+import java.util.*
 
 /**
 * Created by hugo on 04/09/17.
@@ -131,10 +132,35 @@ class AcessoBD(private val query: String, private val c: Context, private val di
             is RelatorioBeaconActivity->
             {
                 try {
+                    val mac_passagens = Hashtable<String,Int>()
+                    val mac_nome = Hashtable<String,String>()
+                    val mac_carro = Hashtable<String,String>()
+                    val mac_ultimadeteccao = Hashtable<String,String>()
                     while(result!!.next())
                     {
-                        Log.d("teste",result.getString(1))
+                        c.getAdapter().add(result.getString(1))
+                        mac_passagens.put(result.getString(1),result.getInt(6))
+                        mac_nome.put(result.getString(1),result.getString(4))
+                        try
+                        {
+                            mac_carro.put(result.getString(1),result.getString(7))
+                        }catch (e: NullPointerException)
+                        {
+                            mac_carro.put(result.getString(1),"Nenhum")
+                        }
+                        try {
+                            mac_ultimadeteccao.put(result.getString(1),result.getString(5))
+                        }catch (e: NullPointerException)
+                        {
+                            mac_ultimadeteccao.put(result.getString(1),"Nenhum")
+                        }
+
                     }
+                    c.getAdapter().notifyDataSetChanged()
+                    c.setPassagens(mac_passagens)
+                    c.setNomes(mac_nome)
+                    c.setCarros(mac_carro)
+                    c.setUltimaDeteccao(mac_ultimadeteccao)
                 }catch (e: SQLException)
                 {
 

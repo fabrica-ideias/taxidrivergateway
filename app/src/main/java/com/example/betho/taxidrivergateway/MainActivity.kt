@@ -13,7 +13,6 @@ import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.SeekBar
@@ -120,7 +119,7 @@ companion object {
             Timer(true).schedule(intermitente, 0, 3000)
         }catch (e: UninitializedPropertyAccessException)
         {
-            Log.d("Timer intermitente", "ainda não inicializado")
+            e.printStackTrace()
         }
 
         GetLocalHostTask(ip_gateway, getSystemService(Context.WIFI_SERVICE) as WifiManager).execute()
