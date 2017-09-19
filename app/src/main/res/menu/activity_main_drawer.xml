@@ -15,6 +15,10 @@
             android:icon="@drawable/ic_report_black_24dp"
             android:title="@string/relatorio_beacon_menu_txt" />
         <item
+            android:id="@+id/relatorio_carros"
+            android:icon="@drawable/ic_directions_car_black_24dp"
+            android:title="@string/relatorio_carro_menu_txt" />
+        <item
             android:id="@+id/scan_beacon"
             android:icon="@drawable/ic_bluetooth_searching_black_24dp"
             android:title="@string/scan_beacon_menu_txt" />

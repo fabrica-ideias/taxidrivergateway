@@ -108,6 +108,8 @@ companion object {
         sqlite.onUpgrade(sqlite.writableDatabase,sqlite.writableDatabase.version,sqlite.writableDatabase.version+1)
         acessoBD = AcessoBD("SELECT * FROM Beacon",this@MainActivity,null,true)
         acessoBD.execute()
+        acessoBD = AcessoBD("SELECT * FROM Carro",this@MainActivity, null, true)
+        acessoBD.execute()
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -201,6 +203,11 @@ companion object {
             R.id.teste_con->
             {
                 val intent = Intent(this@MainActivity, TesteActivity::class.java)
+                startActivity(intent)
+            }
+            R.id.relatorio_carros->
+            {
+                val intent = Intent(this@MainActivity, RelatorioCarroActivity::class.java)
                 startActivity(intent)
             }
             R.id.sair->

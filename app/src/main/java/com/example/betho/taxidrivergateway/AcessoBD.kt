@@ -94,21 +94,17 @@ class AcessoBD(private val query: String, private val c: Context, private val di
                         val sqlite = AcessoSQLite(c)
                         while(result!!.next())
                         {
-                            if(result.findColumn("mac") != -1)
+                            try
                             {
-                                sqlite.use { insert("Beacon", "mac" to result.getString(1), "nome" to result.getString(4), "rssi" to result.getString(2), "distancia" to result.getString(3), "ultimadeteccao" to result.getString(4), "passagens" to result.getInt(5)) }
-                            }
-                            else
+                                result.findColumn("mac")
+                                sqlite.use { insert("Beacon", "mac" to result.getString(1), "nome" to result.getString(4), "rssi" to result.getString(2), "distancia" to result.getString(3), "ultimadeteccao" to result.getString(5), "passagens" to result.getInt(6)) }
+                            }catch (e: SQLException)
                             {
                                 sqlite.readableDatabase.select("Carro").exec {
                                     sqlite.use { insert("Carro", "carroid" to result.getString(1),"fk_beacon" to result.getString(2), "fk_situacao" to result.getString(3), "fk_posto" to result.getString(4), "nome" to result.getString(5)) }
                                 }
                             }
                         }
-                    }catch (e: SQLException)
-                    {
-                        c.toast("Erro sqlite")
-                        e.printStackTrace()
                     }
                     catch(e: KotlinNullPointerException)
                     {

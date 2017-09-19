@@ -30,7 +30,8 @@
         <activity android:name=".RelatorioBeaconActivity" />
         <activity android:name=".TesteActivity" />
         <activity android:name=".ScanBeaconActivity" />
-        <activity android:name=".CadastroCarroActivity"></activity>
+        <activity android:name=".CadastroCarroActivity" />
+        <activity android:name=".RelatorioCarroActivity"></activity>
     </application>
 
 </manifest>

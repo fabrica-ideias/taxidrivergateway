@@ -16,6 +16,7 @@
     <string name="action_settings">Settings</string>
     <string name="cadastro_beacon_menu_txt">Cadastrar Beacon</string>
     <string name="cadastro_carro_menu_txt">Cadastrar Carro</string>
+    <string name="relatorio_carro_menu_txt">Relatório de Carros</string>
     <string name="relatorio_beacon_menu_txt">Relatório Beacon</string>
     <string name="scan_beacon_menu_txt">Scan Beacon</string>
     <string name="teste_con_menu_txt">Testar Conexão</string>
