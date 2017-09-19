@@ -16,19 +16,38 @@ import android.widget.ArrayAdapter
 import android.widget.TextView
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_cadastro_beacon.*
+import org.jetbrains.anko.alert
+import org.jetbrains.anko.db.select
+import org.jetbrains.anko.noButton
+import org.jetbrains.anko.yesButton
 import java.util.*
 
 class CadastroBeaconActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
     private val lista_rssi = Hashtable<String,String>()
     override fun onItemClick(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
         val view = p1 as TextView
+        val mac_dispositivo = view.text.toString()
         when(p1.parent)
         {
             listview_dispositivos->
             {
-                val mac_dispositivo = view.text.toString()
-                val cadastroBeaconDialog = CadastroBeaconDialog(this@CadastroBeaconActivity,mac_dispositivo)
-                cadastroBeaconDialog.show()
+                AcessoSQLite(this@CadastroBeaconActivity).readableDatabase.select("Beacon").whereArgs("mac={macString}", "macString" to mac_dispositivo).exec {
+                    if(this.count>0)
+                    {
+                        alert(R.string.beacon_ja_cadastrado) {
+                            yesButton {
+                                val atualizarBeacon = AtualizarCadastroBeaconDialog(this@CadastroBeaconActivity)
+                                atualizarBeacon.show()
+                            }
+                            noButton {  }
+                        }.show()
+                    }
+                    else
+                    {
+                        val cadastroBeaconDialog = CadastroBeaconDialog(this@CadastroBeaconActivity,mac_dispositivo)
+                        cadastroBeaconDialog.show()
+                    }
+                }
             }
         }
     }

@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.main.cadastro_beacon_dialog_layout.*
 import org.jetbrains.anko.*
 import org.jetbrains.anko.db.insert
+import org.jetbrains.anko.db.select
 import java.net.UnknownHostException
 import java.sql.DriverManager
 import java.sql.ResultSet
@@ -93,7 +94,16 @@ class AcessoBD(private val query: String, private val c: Context, private val di
                         val sqlite = AcessoSQLite(c)
                         while(result!!.next())
                         {
-                                sqlite.use { insert("Beacon", "mac" to result.getString(1), "nome" to result.getString(4), "rssi" to result.getString(2), "distancia" to result.getString(3)) }
+                            if(result.findColumn("mac") != -1)
+                            {
+                                sqlite.use { insert("Beacon", "mac" to result.getString(1), "nome" to result.getString(4), "rssi" to result.getString(2), "distancia" to result.getString(3), "ultimadeteccao" to result.getString(4), "passagens" to result.getInt(5)) }
+                            }
+                            else
+                            {
+                                sqlite.readableDatabase.select("Carro").exec {
+                                    sqlite.use { insert("Carro", "carroid" to result.getString(1),"fk_beacon" to result.getString(2), "fk_situacao" to result.getString(3), "fk_posto" to result.getString(4), "nome" to result.getString(5)) }
+                                }
+                            }
                         }
                     }catch (e: SQLException)
                     {

@@ -5,11 +5,14 @@ import android.content.Context
 import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
+
 import kotlinx.android.synthetic.main.cadastro_beacon_dialog_layout.*
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.noButton
 import org.jetbrains.anko.yesButton
+import java.util.*
+
 /**
 * Created by hugo on 04/09/17.
 */
@@ -30,13 +33,11 @@ class CadastroBeaconDialog(private val c: Context, private val mac : String) : D
         finalizar_cadastro_beacon_btn.setOnClickListener { _ ->
             val carro = lista_carros.selectedItem.toString()
             if(carro.split("-")[0] == "0")
-                query = "INSERT INTO Beacon VALUES ('$mac','${cadastroBeaconActivity.getRssi(mac)}',${distancia(cadastroBeaconActivity.getRssi(mac)!!.toInt()).toInt()},'${beacon_nome.text}')"
+                query = "INSERT INTO Beacon VALUES ('$mac','${cadastroBeaconActivity.getRssi(mac)}',${distancia(cadastroBeaconActivity.getRssi(mac)!!.toInt()).toInt()},'${beacon_nome.text}','${Date().time}',0)"
             else
             {
-                Log.d("carro escolhido",carro)
-                Log.d("distancia",distancia(cadastroBeaconActivity.getRssi(mac)!!.toInt()).toShort().toString())
                 //query = "INSERT INTO Beacon VALUES (LAST_INSERT_ID(),'${beacon_nome.text}','${cadastroBeaconActivity.getRssi(mac)}',${distancia(cadastroBeaconActivity.getRssi(mac)!!.toInt())},'$mac');"
-                query = "INSERT INTO Beacon VALUES ('$mac','${cadastroBeaconActivity.getRssi(mac)}',${distancia(cadastroBeaconActivity.getRssi(mac)!!.toInt()).toShort()},'${beacon_nome.text}');"
+                query = "INSERT INTO Beacon VALUES ('$mac','${cadastroBeaconActivity.getRssi(mac)}',${distancia(cadastroBeaconActivity.getRssi(mac)!!.toInt()).toShort()},'${beacon_nome.text}','${Date().time}',0);"
                 val query2 = "UPDATE Carro SET fk_beacon=(SELECT MAX(mac) FROM Beacon WHERE carroid='$carro');"
                 c.alert(R.string.calibrar_aviso){
                     yesButton {
