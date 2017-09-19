@@ -5,6 +5,7 @@
     <string name="conexao_error">Erro ao enviar requisição ao servidor de aplicação</string>
 
     <string name="app_name">TaxiDriverGateway</string>
+    <string name="company_name">Fábrica de Ideias</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
