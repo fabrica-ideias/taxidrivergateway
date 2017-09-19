@@ -9,7 +9,6 @@ import android.bluetooth.le.ScanSettings
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
@@ -83,12 +82,16 @@ class CadastroBeaconActivity : AppCompatActivity(), AdapterView.OnItemClickListe
                 try {
                     addDispotivo(result!!.device.address)
                     lista_rssi.put(result.device.address, result.rssi.toString())
-                    Log.d("modo padrão","detectado")
                 }catch(e: Exception)
                 {
-                    Log.d("exceção","modo padrão")
+                    e.printStackTrace()
                 }
             }
+            else
+                if(callbackType == ScanSettings.CALLBACK_TYPE_MATCH_LOST)
+                {
+                    lista_dispositivos.remove(result!!.device.address)
+                }
             lista_dispositivos.notifyDataSetChanged()
         }
 
