@@ -280,6 +280,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 val intent = Intent(this@MainActivity, RelatorioCarroActivity::class.java)
                 startActivity(intent)
             }
+            R.id.config->
+            {
+                val intent = Intent(this@MainActivity, SettingsActivity::class.java)
+                startActivity(intent)
+            }
             R.id.sair->
             {
                 finish()

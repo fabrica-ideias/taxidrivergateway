@@ -31,7 +31,10 @@
         <activity android:name=".TesteActivity" />
         <activity android:name=".ScanBeaconActivity" />
         <activity android:name=".CadastroCarroActivity" />
-        <activity android:name=".RelatorioCarroActivity"></activity>
+        <activity android:name=".RelatorioCarroActivity" />
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings"></activity>
     </application>
 
 </manifest>
