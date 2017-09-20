@@ -25,6 +25,16 @@ import java.util.*
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, SeekBar.OnSeekBarChangeListener {
+    private var bt_adapter : BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
+    private lateinit var scanner : BluetoothLeScanner
+    private lateinit var acessoBD : AcessoBD
+    private val sqlite = AcessoSQLite(this@MainActivity)
+    private var intermitente : Intermitente? = null
+    private val mac_contador = Hashtable<String,Int>()
+    private val enableBT = {
+        val intent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+        startActivityForResult(intent,1)
+    }
     override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
         when(p0)
         {
@@ -38,23 +48,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
     }
-
-    override fun onStartTrackingTouch(p0: SeekBar?) {
-    }
-
-    override fun onStopTrackingTouch(p0: SeekBar?) {
-    }
-
-    private var bt_adapter : BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
-    private lateinit var scanner : BluetoothLeScanner
-    private lateinit var acessoBD : AcessoBD
-    private val sqlite = AcessoSQLite(this@MainActivity)
-    private lateinit var intermitente : Intermitente
-
-    private val enableBT = {
-        val intent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-        startActivityForResult(intent,1)
-    }
+    override fun onStartTrackingTouch(p0: SeekBar?) {}
+    override fun onStopTrackingTouch(p0: SeekBar?) {}
     private val callback = object : ScanCallback()
     {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
@@ -68,11 +63,25 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         val mac = result.device.address
                         val requisitaRecurso = RequisitaRecurso("http://taxidrivercall.000webhostapp.com/php/status.php?mac=$mac", this@MainActivity)
                         requisitaRecurso.execute()
+                        when {
+                            mac_contador[mac] == null -> mac_contador[mac] = 1
+                            mac_contador[mac]!! < 3 -> {
+                                var aux = mac_contador[mac]
+                                if(aux != null)
+                                    aux+=1
+                                mac_contador[mac] = aux
+                            }
+                            else -> {
+                                intermitente = Intermitente(mac, mac_contador[mac]!!)
+                                mac_contador[mac] = 0
+                            }
+                        }
                         sqlite.readableDatabase.select("Beacon").whereArgs("mac = {deviceMac}", "deviceMac" to mac).exec {
                             while(this.moveToNext())
                             {
                                 beacon_numero.text = this.getString(1)
                                 mac_detectado.text = mac
+                                distancia_valor.text = distancia(result.rssi).toString()
                             }
                             this.close()
                         }
@@ -83,13 +92,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
             }
         }
-
         override fun onScanFailed(errorCode: Int) {
             super.onScanFailed(errorCode)
         }
     }
-
-    private val recuperarDadosOnline = {
+    private val recuperarDadosOnline = { // conecta com o servidor remoto para trazer os novos dados para o sqlite
         sqlite.onUpgrade(sqlite.writableDatabase,sqlite.writableDatabase.version,sqlite.writableDatabase.version+1)
         acessoBD = AcessoBD("SELECT * FROM Beacon",this@MainActivity,null,true)
         acessoBD.execute()
@@ -108,11 +115,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         latencia.setOnSeekBarChangeListener(this)
         try {
             Timer(true).schedule(intermitente, 0, 3000)
+            intermitente = null
         }catch (e: UninitializedPropertyAccessException)
         {
             e.printStackTrace()
+        }catch (e: KotlinNullPointerException)
+        {
+            e.printStackTrace()
+        }catch (e: NullPointerException)
+        {
+            e.printStackTrace()
         }
-
         GetLocalHostTask(ip_gateway, getSystemService(Context.WIFI_SERVICE) as WifiManager).execute()
         setSupportActionBar(toolbar)
         val toggle = ActionBarDrawerToggle(
@@ -133,7 +146,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         }
     }
-
     override fun onResume() {
         recuperarDadosOnline()
         super.onResume()

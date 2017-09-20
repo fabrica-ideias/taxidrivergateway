@@ -8,8 +8,8 @@ import java.util.*
 /**
 * Created by hugo on 18/09/17.
 */
-class Intermitente(mac : String) : TimerTask() {
-    private val url = URL("http://taxidrivercall.000webhostapp.com/php/intermitente.php?mac=$mac")
+class Intermitente(mac : String, contador: Int) : TimerTask() {
+    private val url = URL("http://taxidrivercall.000webhostapp.com/php/intermitente.php?mac=$mac&contador=$contador")
     override fun run() {
         val request = url.openConnection() as HttpURLConnection
         try {

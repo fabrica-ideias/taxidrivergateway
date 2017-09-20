@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.os.BatteryManager
-import kotlinx.android.synthetic.main.content_main.*
 
 /**
 * Created by hugo on 12/09/17.
@@ -19,7 +18,7 @@ class EstadoDispositivo(private val c : Context) : Runnable {
                 val estadorede = getEstadoRede()
                 if(estadorede != ConnectivityManager.TYPE_MOBILE && estadorede != ConnectivityManager.TYPE_WIFI)
                 {
-                    c.aviso.setText(R.string.sem_rede_aviso)
+
                 }
             }
         }
