@@ -32,14 +32,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var intermitente : Intermitente? = null
     private val mac_contador = Hashtable<String,Int>()
     private val rssi_calibrado = Hashtable<String,Double>()
+    private var flag_enviar_servidor = true
+    private val deteccoes_rssi_beacon = Hashtable<String,ArrayList<Int>>()
     private val enableBT = {
         val intent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
         startActivityForResult(intent,1)
     }
     private val calibragemRssi = { rssi : Int, mac: String-> //identifica valor adequado do rssi a 1 metro do beacon em específico
-        val deteccoes_rssi_beacon = Hashtable<String,ArrayList<Int>>()
-        deteccoes_rssi_beacon.put(mac,ArrayList())
-        deteccoes_rssi_beacon[mac]!!.add(rssi)
+        try
+        {
+            deteccoes_rssi_beacon[mac]!!.add(rssi)
+        }catch (e: Exception)
+        {
+            deteccoes_rssi_beacon.put(mac,ArrayList())
+        }
         try {
             var soma = 0
             val rssi_medio : Int
@@ -52,12 +58,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }catch (e: KotlinNullPointerException)
         {
-
+            e.printStackTrace()
         }catch (e: NullPointerException)
         {
-
+            e.printStackTrace()
         }
 
+    }
+    val setFlagEnvioServer = {
+        this.flag_enviar_servidor = !flag_enviar_servidor
     }
     override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
         when(p0)
@@ -81,16 +90,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             if(callbackType == ScanSettings.CALLBACK_TYPE_FIRST_MATCH || callbackType == ScanSettings.MATCH_MODE_AGGRESSIVE)
             {
                 val sensibilidade_distancia = sensibilidade_valor_label.text.toString().toInt()
-                if(distancia(result!!.rssi) <= sensibilidade_distancia || sensibilidade_distancia == 0)
+                val mac = result!!.device.address
+                if(distancia(result.rssi, mac) <= sensibilidade_distancia || sensibilidade_distancia == 0)
                 {
                     try {
-                        val mac = result.device.address
                         if(rssi_calibrado[mac] == null)
                         {
                             calibragemRssi(result.rssi,mac)
                         }
-                        val requisitaRecurso = RequisitaRecurso("http://taxidrivercall.000webhostapp.com/php/status.php?mac=$mac", this@MainActivity)
-                        requisitaRecurso.execute()
+                        if(flag_enviar_servidor)
+                        {
+                            val requisitaRecurso = RequisitaRecurso("http://taxidrivercall.000webhostapp.com/php/status.php?mac=$mac", this@MainActivity)
+                            requisitaRecurso.execute()
+                            flag_enviar_servidor = false
+                        }
                         when {
                             mac_contador[mac] == null -> mac_contador[mac] = 1
                             mac_contador[mac]!! < 3 -> {
@@ -100,7 +113,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                 mac_contador[mac] = aux
                             }
                             else -> {
-                                intermitente = Intermitente(mac, mac_contador[mac]!!)
+                                intermitente = Intermitente(mac, mac_contador[mac]!!, this@MainActivity)
                                 mac_contador[mac] = 0
                             }
                         }
@@ -109,7 +122,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             {
                                 beacon_numero.text = this.getString(1)
                                 mac_detectado.text = mac
-                                distancia_valor.text = distancia(result.rssi).toString()
+                                distancia_valor.text = distancia(result.rssi,mac).toString()
                             }
                             this.close()
                         }
@@ -131,8 +144,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         acessoBD = AcessoBD("SELECT * FROM Carro",this@MainActivity, null, true)
         acessoBD.execute()
     }
-    private val distancia = { rssi : Int ->
-        val rssiAtOneMetter = -38.0
+    private val distancia = { rssi : Int,mac : String ->
+        var rssiAtOneMetter = rssi_calibrado[mac]
+        if(rssiAtOneMetter == null)
+            rssiAtOneMetter = -38.0
         val distance = Math.pow(10.0,(rssiAtOneMetter - rssi)/20)
         distance
     }
@@ -142,7 +157,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         sensibilidade.setOnSeekBarChangeListener(this)
         latencia.setOnSeekBarChangeListener(this)
         try {
-            Timer(true).schedule(intermitente, 0, 3000)
+            Timer(true).schedule(intermitente, 0, 10000)
             intermitente = null
         }catch (e: UninitializedPropertyAccessException)
         {
