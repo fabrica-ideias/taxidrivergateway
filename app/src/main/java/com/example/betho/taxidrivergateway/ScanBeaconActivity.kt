@@ -11,6 +11,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import kotlinx.android.synthetic.main.activity_scan_beacon.*
@@ -113,6 +114,8 @@ class ScanBeaconActivity : AppCompatActivity(), AdapterView.OnItemClickListener 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_scan_beacon)
+        supportActionBar?.setHomeButtonEnabled(true)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         lista_dispositivos = ArrayAdapter(this@ScanBeaconActivity, R.layout.list_layout)
         beacon_lista.adapter = lista_dispositivos
         beacon_lista.onItemClickListener = this
@@ -126,6 +129,11 @@ class ScanBeaconActivity : AppCompatActivity(), AdapterView.OnItemClickListener 
             }
 
         }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        finish()
+        return super.onOptionsItemSelected(item)
     }
     private val enableBT = {
         val intent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)

@@ -31,9 +31,33 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private val sqlite = AcessoSQLite(this@MainActivity)
     private var intermitente : Intermitente? = null
     private val mac_contador = Hashtable<String,Int>()
+    private val rssi_calibrado = Hashtable<String,Double>()
     private val enableBT = {
         val intent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
         startActivityForResult(intent,1)
+    }
+    private val calibragemRssi = { rssi : Int, mac: String-> //identifica valor adequado do rssi a 1 metro do beacon em específico
+        val deteccoes_rssi_beacon = Hashtable<String,ArrayList<Int>>()
+        deteccoes_rssi_beacon.put(mac,ArrayList())
+        deteccoes_rssi_beacon[mac]!!.add(rssi)
+        try {
+            var soma = 0
+            val rssi_medio : Int
+            if(deteccoes_rssi_beacon[mac]!!.size >= 20)
+            {
+                for(i in 0 until deteccoes_rssi_beacon.size)
+                    soma+=deteccoes_rssi_beacon[mac]!![i]
+                rssi_medio = soma/deteccoes_rssi_beacon.size
+                rssi_calibrado.put(mac,rssi_medio.toDouble())
+            }
+        }catch (e: KotlinNullPointerException)
+        {
+
+        }catch (e: NullPointerException)
+        {
+
+        }
+
     }
     override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
         when(p0)
@@ -61,6 +85,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 {
                     try {
                         val mac = result.device.address
+                        if(rssi_calibrado[mac] == null)
+                        {
+                            calibragemRssi(result.rssi,mac)
+                        }
                         val requisitaRecurso = RequisitaRecurso("http://taxidrivercall.000webhostapp.com/php/status.php?mac=$mac", this@MainActivity)
                         requisitaRecurso.execute()
                         when {
