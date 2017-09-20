@@ -32,8 +32,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var intermitente : Intermitente? = null
     private val mac_contador = Hashtable<String,Int>()
     private val rssi_calibrado = Hashtable<String,Double>()
-    private var flag_enviar_servidor = true
     private val deteccoes_rssi_beacon = Hashtable<String,ArrayList<Int>>()
+    private val flags_envia_servidor = Hashtable<String,Boolean>()
     private val enableBT = {
         val intent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
         startActivityForResult(intent,1)
@@ -65,8 +65,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
     }
-    val setFlagEnvioServer = {
-        this.flag_enviar_servidor = !flag_enviar_servidor
+    val setFlagEnvioServer = { mac:String ->
+        try {
+            flags_envia_servidor.put(mac,!flags_envia_servidor[mac]!!)
+        }catch (e: KotlinNullPointerException)
+        {
+            flags_envia_servidor.put(mac,true)
+        }
     }
     override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
         when(p0)
@@ -83,6 +88,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
     override fun onStartTrackingTouch(p0: SeekBar?) {}
     override fun onStopTrackingTouch(p0: SeekBar?) {}
+    private val notificaDeteccao = { mac : String ->
+        val requisitaRecurso = RequisitaRecurso("http://192.168.7.115/taxidrivercall/php/status.php?mac=$mac", this@MainActivity)
+        requisitaRecurso.execute()
+        flags_envia_servidor.put(mac,false)
+    }
     private val callback = object : ScanCallback()
     {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
@@ -91,18 +101,31 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             {
                 val sensibilidade_distancia = sensibilidade_valor_label.text.toString().toInt()
                 val mac = result!!.device.address
+                try {
+                    if(!flags_envia_servidor[mac]!! && distancia(result.rssi,mac) <= 5)
+                    {
+                        notificaDeteccao(mac)
+                    }
+                }catch (e: KotlinNullPointerException)
+                {
+                    e.printStackTrace()
+                }
                 if(distancia(result.rssi, mac) <= sensibilidade_distancia || sensibilidade_distancia == 0)
                 {
+                    try {
+                        if(flags_envia_servidor[mac]!!)
+                        {
+                            notificaDeteccao(mac)
+                        }
+                    }catch (e: KotlinNullPointerException)
+                    {
+                        e.printStackTrace()
+                    }
+
                     try {
                         if(rssi_calibrado[mac] == null)
                         {
                             calibragemRssi(result.rssi,mac)
-                        }
-                        if(flag_enviar_servidor)
-                        {
-                            val requisitaRecurso = RequisitaRecurso("http://taxidrivercall.000webhostapp.com/php/status.php?mac=$mac", this@MainActivity)
-                            requisitaRecurso.execute()
-                            flag_enviar_servidor = false
                         }
                         when {
                             mac_contador[mac] == null -> mac_contador[mac] = 1
@@ -191,6 +214,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
     override fun onResume() {
         recuperarDadosOnline()
+        scanner.startScan(callback)
         super.onResume()
     }
     override fun onBackPressed() {
@@ -227,6 +251,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         {
             R.id.cadastro_beacon->
             {
+                scanner.stopScan(callback)
                 val intent = Intent(this@MainActivity, CadastroBeaconActivity::class.java)
                 startActivity(intent)
             }
