@@ -25,9 +25,6 @@ import java.util.*
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, SeekBar.OnSeekBarChangeListener {
-companion object {
-    val mac_contador = Hashtable<String,Int>()
-}
     override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
         when(p0)
         {
@@ -64,36 +61,25 @@ companion object {
             super.onScanResult(callbackType, result)
             if(callbackType == ScanSettings.CALLBACK_TYPE_FIRST_MATCH || callbackType == ScanSettings.MATCH_MODE_AGGRESSIVE)
             {
-                try {
-                    val mac = result!!.device.address
-                    val requisitaRecurso = RequisitaRecurso("http://taxidrivercall.000webhostapp.com/php/status.php?mac=$mac", this@MainActivity)
-                    requisitaRecurso.execute()
-                    if(mac_contador[mac] == null || mac_contador[mac] == 0)
-                    {
-                        mac_contador[mac] = 1
-                    }
-                    else
-                    {
-                        var aux : Int = mac_contador[mac]!!
-                        aux+=1
-                        mac_contador[mac] = aux
-                    }
-                    intermitente = Intermitente(mac, mac_contador[mac]!!)
-                    if(mac_contador[mac] == 3)
-                    {
-                        mac_contador[mac] = 0
-                    }
-                    sqlite.readableDatabase.select("Beacon").whereArgs("mac = {deviceMac}", "deviceMac" to mac).exec {
-                        while(this.moveToNext())
-                        {
-                            beacon_numero.text = this.getString(1)
-                            mac_detectado.text = mac
-                        }
-                        this.close()
-                    }
-                }catch(e: Exception)
+                val sensibilidade_distancia = sensibilidade_valor_label.text.toString().toInt()
+                if(distancia(result!!.rssi) <= sensibilidade_distancia || sensibilidade_distancia == 0)
                 {
-                    e.printStackTrace()
+                    try {
+                        val mac = result.device.address
+                        val requisitaRecurso = RequisitaRecurso("http://taxidrivercall.000webhostapp.com/php/status.php?mac=$mac", this@MainActivity)
+                        requisitaRecurso.execute()
+                        sqlite.readableDatabase.select("Beacon").whereArgs("mac = {deviceMac}", "deviceMac" to mac).exec {
+                            while(this.moveToNext())
+                            {
+                                beacon_numero.text = this.getString(1)
+                                mac_detectado.text = mac
+                            }
+                            this.close()
+                        }
+                    }catch(e: Exception)
+                    {
+                        e.printStackTrace()
+                    }
                 }
             }
         }
@@ -109,6 +95,11 @@ companion object {
         acessoBD.execute()
         acessoBD = AcessoBD("SELECT * FROM Carro",this@MainActivity, null, true)
         acessoBD.execute()
+    }
+    private val distancia = { rssi : Int ->
+        val rssiAtOneMetter = -38.0
+        val distance = Math.pow(10.0,(rssiAtOneMetter - rssi)/20)
+        distance
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -13,7 +13,8 @@ class TesteActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
         teste_btn.setOnClickListener { _ ->
-            val test = RequisitaRecurso("",this@TesteActivity).execute()
+            val recurso = RequisitaRecurso("http://taxidrivercall.000webhostapp.com",this@TesteActivity)
+            recurso.execute()
         }
     }
 

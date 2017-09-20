@@ -28,7 +28,7 @@ class RequisitaRecurso(private val url: String, private val c: Context) : AsyncT
             is TesteActivity->
             {
                 val url = URL(url)
-                var urlConnection = url.openConnection() as HttpURLConnection
+                val urlConnection = url.openConnection() as HttpURLConnection
                 return try {
                     BufferedInputStream(urlConnection.inputStream)
                     true
