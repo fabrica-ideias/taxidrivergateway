@@ -3,6 +3,7 @@ package com.example.betho.taxidrivergateway
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.view.MenuItem
 import android.widget.SeekBar
 import kotlinx.android.synthetic.main.activity_config.*
 import org.jetbrains.anko.defaultSharedPreferences
@@ -35,6 +36,8 @@ class ConfigActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_config)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setHomeButtonEnabled(true)
         prefs = defaultSharedPreferences
         editor = prefs.edit()
         sensibilidade.max = 10
@@ -47,5 +50,10 @@ class ConfigActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
             editor.commit()
             finish()
         }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        finish()
+        return super.onOptionsItemSelected(item)
     }
 }

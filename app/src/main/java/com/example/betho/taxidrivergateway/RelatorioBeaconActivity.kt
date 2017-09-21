@@ -18,47 +18,57 @@ class RelatorioBeaconActivity : AppCompatActivity(), AdapterView.OnItemClickList
         val texto = view.text.toString()
         alert(R.string.det_beacon) {
             customView {
-                linearLayout {
-                    orientation = LinearLayout.VERTICAL
+                scrollView {
                     linearLayout {
-                        orientation = LinearLayout.HORIZONTAL
-                        textView {
-                            setText(R.string.carro_cadastrado_label)
-                            text = "$text ${mac_carro[texto]}"
+                        orientation = LinearLayout.VERTICAL
+                        linearLayout {
+                            orientation = LinearLayout.HORIZONTAL
+                            textView {
+                                setText(R.string.carro_cadastrado_label)
+                                text = "$text ${mac_carro[texto]}"
+                            }
                         }
-                    }
-                    linearLayout {
-                        orientation = LinearLayout.HORIZONTAL
-                        textView {
-                            setText(R.string.deteccoes_beacon_label)
-                            text = "$text ${mac_passagens[texto]}"
+                        linearLayout {
+                            orientation = LinearLayout.HORIZONTAL
+                            textView {
+                                setText(R.string.deteccoes_beacon_label)
+                                text = "$text ${mac_passagens[texto]}"
+                            }
                         }
-                    }
-                    linearLayout {
-                        orientation = LinearLayout.HORIZONTAL
-                        textView {
-                            setText(R.string.nome_beacon_label)
-                            text = "$text ${mac_nome[texto]}"
+                        linearLayout {
+                            orientation = LinearLayout.HORIZONTAL
+                            textView {
+                                setText(R.string.nome_beacon_label)
+                                text = "$text ${mac_nome[texto]}"
+                            }
                         }
-                    }
-                    linearLayout {
-                        orientation = LinearLayout.HORIZONTAL
-                        textView {
-                            setText(R.string.ultima_deteccao_beacon)
-                            text = "$text ${mac_ultimadeteccao[texto]}"
+                        linearLayout {
+                            orientation = LinearLayout.HORIZONTAL
+                            textView {
+                                setText(R.string.ultima_deteccao_beacon)
+                                text = "$text ${mac_ultimadeteccao[texto]}"
+                            }
                         }
-                    }
-                }.applyRecursively { view -> //aplica propriedades recursivamente às views passadas como parâmetro aqui
-                    when(view)
-                    {
-                        is TextView ->
+                    }.applyRecursively { view -> //aplica propriedades recursivamente às views passadas como parâmetro aqui
+                        when(view)
                         {
-                            view.padding = dip(10)
-                            view.textSize = 20f
-                        }
+                            is TextView ->
+                            {
+                                view.textSize = 15f
+                            }
+                            is LinearLayout->
+                            {
+                                if(view.orientation == LinearLayout.VERTICAL)
+                                    view.padding = dip(20)
+                                else
+                                    view.padding = dip(5)
+                            }
 
+
+                        }
                     }
                 }
+
             }
             okButton {  }
         }.show()

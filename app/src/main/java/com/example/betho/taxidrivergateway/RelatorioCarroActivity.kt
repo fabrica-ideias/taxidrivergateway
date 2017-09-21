@@ -30,6 +30,8 @@ class RelatorioCarroActivity : AppCompatActivity(), AdapterView.OnItemClickListe
                                         orientation = LinearLayout.HORIZONTAL
                                         textView {
                                             setText(R.string.nome_carro_label)
+                                        }
+                                        textView {
                                             sqlite.use { select("Carro").whereArgs("carroid={placa}", "placa" to placa).exec {
                                                 while(this.moveToNext())
                                                 {
@@ -42,6 +44,8 @@ class RelatorioCarroActivity : AppCompatActivity(), AdapterView.OnItemClickListe
                                         orientation = LinearLayout.HORIZONTAL
                                         textView {
                                             setText(R.string.beacon_associado_label)
+                                        }
+                                        textView {
                                             sqlite.use { select("Carro").whereArgs("carroid={placa}", "placa" to placa).exec {
                                                 while(this.moveToNext())
                                                 {
@@ -54,6 +58,8 @@ class RelatorioCarroActivity : AppCompatActivity(), AdapterView.OnItemClickListe
                                         orientation = LinearLayout.HORIZONTAL
                                         textView {
                                             setText(R.string.situacao_label)
+                                        }
+                                        textView {
                                             sqlite.use { select("Carro, Situacao").whereArgs("fk_situacao=situacaoid and carroid={placa}", "placa" to placa).exec {
                                                 while(this.moveToNext())
                                                 {
@@ -66,6 +72,8 @@ class RelatorioCarroActivity : AppCompatActivity(), AdapterView.OnItemClickListe
                                         orientation = LinearLayout.HORIZONTAL
                                         textView {
                                             setText(R.string.posto_label)
+                                        }
+                                        textView {
                                             sqlite.use { select("Carro, Posto").whereArgs("fk_posto=postoid and carroid={placa}", "placa" to placa).exec {
                                                 while(this.moveToNext())
                                                 {
