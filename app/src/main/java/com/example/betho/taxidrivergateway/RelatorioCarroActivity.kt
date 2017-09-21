@@ -15,7 +15,9 @@ import org.jetbrains.anko.db.select
 
 class RelatorioCarroActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
     override fun onItemClick(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-        when(p1?.parent)
+        p1 as TextView
+        val placa = p1.text.toString()
+        when(p1.parent)
         {
             lista_carros->
             {
@@ -29,12 +31,24 @@ class RelatorioCarroActivity : AppCompatActivity(), AdapterView.OnItemClickListe
                                         orientation = LinearLayout.HORIZONTAL
                                         textView {
                                             setText(R.string.nome_carro_label)
+                                            sqlite.use { select("Carro").whereArgs("carroid={placa}", "placa" to placa).exec {
+                                                while(this.moveToNext())
+                                                {
+                                                    text = "$text ${this.getString(4)}"
+                                                }
+                                            } }
                                         }
                                     }
                                     linearLayout {
                                         orientation = LinearLayout.HORIZONTAL
                                         textView {
                                             setText(R.string.beacon_associado_label)
+                                            sqlite.use { select("Carro").whereArgs("carroid={placa}", "placa" to placa).exec {
+                                                while(this.moveToNext())
+                                                {
+                                                    text = "$text ${this.getString(1)}"
+                                                }
+                                            } }
                                         }
                                     }
                                 }
@@ -57,6 +71,7 @@ class RelatorioCarroActivity : AppCompatActivity(), AdapterView.OnItemClickListe
     }
 
     private lateinit var carros_cadastrados : ArrayAdapter<String>
+    private val sqlite = AcessoSQLite(this@RelatorioCarroActivity)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_relatorio_carro)

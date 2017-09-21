@@ -35,6 +35,7 @@ class CadastroBeaconActivity : AppCompatActivity(), AdapterView.OnItemClickListe
                     if(this.count>0)
                     {
                         alert(R.string.beacon_ja_cadastrado) {
+                            setTitle(R.string.atualizar_beacon_title)
                             yesButton {
                                 val atualizarBeacon = AtualizarCadastroBeaconDialog(this@CadastroBeaconActivity,mac_dispositivo)
                                 atualizarBeacon.show()

@@ -164,7 +164,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         sqlite.onUpgrade(sqlite.writableDatabase,sqlite.writableDatabase.version,sqlite.writableDatabase.version+1)
         acessoBD = AcessoBD("SELECT * FROM Beacon",this@MainActivity,null,true)
         acessoBD.execute()
-        acessoBD = AcessoBD("SELECT * FROM Carro",this@MainActivity, null, true)
+        acessoBD = AcessoBD("SELECT * FROM Carro inner join Situacao on situacaoid=fk_situacao inner join Posto on fk_posto=postoid",this@MainActivity, null, true)
         acessoBD.execute()
     }
     private val distancia = { rssi : Int,mac : String ->
@@ -180,7 +180,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         sensibilidade.setOnSeekBarChangeListener(this)
         latencia.setOnSeekBarChangeListener(this)
         try {
-            Timer(true).schedule(intermitente, 0, 10000)
+            var tempo_latencia = latencia_valor_label.text.toString().toLong()
+            if(tempo_latencia == 0L)
+            {
+                tempo_latencia = 5L
+            }
+            Timer(true).schedule(intermitente, 0, tempo_latencia*1000)
             intermitente = null
         }catch (e: UninitializedPropertyAccessException)
         {
@@ -214,7 +219,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
     override fun onResume() {
         recuperarDadosOnline()
-        scanner.startScan(callback)
+        try
+        {
+            scanner.startScan(callback)
+        }catch (e: Exception)
+        {
+            e.printStackTrace()
+        }
         super.onResume()
     }
     override fun onBackPressed() {
@@ -282,7 +293,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             R.id.config->
             {
-                val intent = Intent(this@MainActivity, SettingsActivity::class.java)
+                val intent = Intent(this@MainActivity, ConfigActivity::class.java)
                 startActivity(intent)
             }
             R.id.sair->

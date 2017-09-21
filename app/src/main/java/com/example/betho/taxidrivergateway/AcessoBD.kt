@@ -105,7 +105,11 @@ class AcessoBD(private val query: String, private val c: Context, private val di
                             }catch (e: SQLException)
                             {
                                 sqlite.readableDatabase.select("Carro").exec {
-                                    sqlite.use { insert("Carro", "carroid" to result.getString(1),"fk_beacon" to result.getString(2), "fk_situacao" to result.getString(3), "fk_posto" to result.getString(4), "nome" to result.getString(5)) }
+                                    sqlite.use {
+                                        insert("Carro", "carroid" to result.getString(1),"fk_beacon" to result.getString(2), "fk_situacao" to result.getString(3), "fk_posto" to result.getString(4), "nome" to result.getString(5))
+                                        insert("Situacao", "situacaoid" to result.getInt(6), "nome" to result.getString(7))
+                                        insert("Posto", "postoid" to result.getInt(4), "nome" to result.getString(9))
+                                    }
                                 }
                             }
                         }
