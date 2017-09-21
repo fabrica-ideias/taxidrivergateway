@@ -26,17 +26,6 @@ class AcessoSQLite(c: Context) : ManagedSQLiteOpenHelper(c,"beacons",null,1) {
     //atributos de posto
     private val POSTOID = "postoid"
     private lateinit var db : SQLiteDatabase
-    companion object {
-        private var instance: AcessoSQLite? = null
-
-        @Synchronized
-        fun getInstance(c: Context): AcessoSQLite {
-            if (instance == null) {
-                instance = AcessoSQLite(c.applicationContext)
-            }
-            return instance!!
-        }
-    }
 
     override fun onCreate(p0: SQLiteDatabase) {
         p0.createTable("Beacon", true,  MAC to TEXT + PRIMARY_KEY,NOME to TEXT, RSSI to TEXT, DISTANCIA to REAL, ULTIMA_DETECCAO to TEXT, PASSAGENS to INTEGER)
@@ -53,6 +42,4 @@ class AcessoSQLite(c: Context) : ManagedSQLiteOpenHelper(c,"beacons",null,1) {
         p0.dropTable("Posto")
         this.onCreate(p0)
     }
-    val Context.database: AcessoSQLite
-        get() = AcessoSQLite.getInstance(applicationContext)
 }

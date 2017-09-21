@@ -10,7 +10,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_relatorio_carro.*
 import org.jetbrains.anko.*
-import org.jetbrains.anko.db.asSequence
 import org.jetbrains.anko.db.select
 
 class RelatorioCarroActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
@@ -51,6 +50,30 @@ class RelatorioCarroActivity : AppCompatActivity(), AdapterView.OnItemClickListe
                                             } }
                                         }
                                     }
+                                    linearLayout {
+                                        orientation = LinearLayout.HORIZONTAL
+                                        textView {
+                                            setText(R.string.situacao_label)
+                                            sqlite.use { select("Carro, Situacao").whereArgs("fk_situacao=situacaoid and carroid={placa}", "placa" to placa).exec {
+                                                while(this.moveToNext())
+                                                {
+                                                    text = "$text ${this.getString(6)}"
+                                                }
+                                            } }
+                                        }
+                                    }
+                                    linearLayout {
+                                        orientation = LinearLayout.HORIZONTAL
+                                        textView {
+                                            setText(R.string.posto_label)
+                                            sqlite.use { select("Carro, Posto").whereArgs("fk_posto=postoid and carroid={placa}", "placa" to placa).exec {
+                                                while(this.moveToNext())
+                                                {
+                                                    text = "$text ${this.getString(6)}"
+                                                }
+                                            } }
+                                        }
+                                    }
                                 }
                             }
                         }.applyRecursively { view ->
@@ -60,6 +83,13 @@ class RelatorioCarroActivity : AppCompatActivity(), AdapterView.OnItemClickListe
                                 {
                                     view.textSize = 15f
                                     view.padding = dip(8)
+                                }
+                                is LinearLayout->
+                                {
+                                    if(view.orientation == LinearLayout.VERTICAL)
+                                    {
+                                        view.padding = dip(10)
+                                    }
                                 }
                             }
                         }
@@ -78,13 +108,14 @@ class RelatorioCarroActivity : AppCompatActivity(), AdapterView.OnItemClickListe
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
         carros_cadastrados = ArrayAdapter(this@RelatorioCarroActivity, R.layout.list_layout)
-        AcessoSQLite(this@RelatorioCarroActivity).readableDatabase.select("Carro").exec {
-            this.asSequence().forEachIndexed {index,  obj ->
-                carros_cadastrados.add(obj[index].toString())
-            }
-        }
+        sqlite.use { select("Carro").exec {
+           while(this.moveToNext())
+           {
+               carros_cadastrados.add(this.getString(0))
+           }
+        }}
         lista_carros.adapter = carros_cadastrados
-        lista_carros.setOnItemClickListener(this)
+        lista_carros.onItemClickListener = this
     }
 
      override fun onOptionsItemSelected(item: MenuItem?): Boolean {

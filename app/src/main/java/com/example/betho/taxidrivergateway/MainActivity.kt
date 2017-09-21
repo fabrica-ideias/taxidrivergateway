@@ -13,6 +13,7 @@ import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.SeekBar
@@ -25,6 +26,25 @@ import java.util.*
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, SeekBar.OnSeekBarChangeListener {
+    inner class Conttask(private val c: Context): TimerTask() {
+        private var cont = 0
+        override fun run() {
+            cont++
+            Log.d("cont", "$cont")
+            if(cont>3)
+            {
+                c as MainActivity
+                c.beacon_numero.text = "?"
+            }
+        }
+        val setCont = { valor : Int->
+            cont = valor
+        }
+
+        val getCont = {
+            cont
+        }
+    }
     private var bt_adapter : BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
     private lateinit var scanner : BluetoothLeScanner
     private lateinit var acessoBD : AcessoBD
@@ -34,6 +54,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private val rssi_calibrado = Hashtable<String,Double>()
     private val deteccoes_rssi_beacon = Hashtable<String,ArrayList<Int>>()
     private val flags_envia_servidor = Hashtable<String,Boolean>()
+    private lateinit var contask: Conttask
     private val enableBT = {
         val intent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
         startActivityForResult(intent,1)
@@ -104,6 +125,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 try {
                     if(!flags_envia_servidor[mac]!! && distancia(result.rssi,mac) <= 5)
                     {
+                        contask.setCont(0)
                         notificaDeteccao(mac)
                     }
                 }catch (e: KotlinNullPointerException)
@@ -115,6 +137,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     try {
                         if(flags_envia_servidor[mac]!!)
                         {
+                            contask.setCont(0)
                             notificaDeteccao(mac)
                         }
                     }catch (e: KotlinNullPointerException)
@@ -177,6 +200,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        contask = Conttask(this@MainActivity)
         sensibilidade.setOnSeekBarChangeListener(this)
         latencia.setOnSeekBarChangeListener(this)
         try {
@@ -187,6 +211,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             Timer(true).schedule(intermitente, 0, tempo_latencia*1000)
             intermitente = null
+            Timer(true).schedule(contask,0, 1000)
         }catch (e: UninitializedPropertyAccessException)
         {
             e.printStackTrace()

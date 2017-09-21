@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.betho.taxidrivergateway">
+    package="com.example.betho.taxidrivergateway" android:installLocation="auto">
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
@@ -32,9 +32,6 @@
         <activity android:name=".ScanBeaconActivity" />
         <activity android:name=".CadastroCarroActivity" />
         <activity android:name=".RelatorioCarroActivity" />
-        <activity
-            android:name=".SettingsActivity"
-            android:label="@string/title_activity_settings" />
         <activity android:name=".ConfigActivity"></activity>
     </application>
 
