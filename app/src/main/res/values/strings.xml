@@ -31,7 +31,9 @@
     <string name="numero_beacon_label">Beacon</string>
     <string name="ip_gateway_hint">IP do Gateway</string>
 
-    <string name="beacon_ja_cadastrado">Beacon já está cadastrado. Atualizar nome ou carro atrelado?</string>
+    <string name="beacon_ja_cadastrado">Beacon já está cadastrado. Atualizar nome ?</string>
+    <string name="parar_scanner">Parar busca</string>
+    <string name="iniciar_scanner">Iniciar busca</string>
 
     <string name="atualizar_beacon_title">Atualização do Beacon</string>
     <string name="novo_nome_hint">Novo nome do Beacon</string>

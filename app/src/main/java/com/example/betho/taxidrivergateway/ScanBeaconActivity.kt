@@ -19,6 +19,7 @@ import org.jetbrains.anko.*
 import java.util.*
 
 class ScanBeaconActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
+    private var escaneando = true
     override fun onItemClick(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
         val view = p1 as TextView
         val texto = view.text.toString()
@@ -107,15 +108,13 @@ class ScanBeaconActivity : AppCompatActivity(), AdapterView.OnItemClickListener 
             lista_dispositivos.notifyDataSetChanged()
         }
 
-        override fun onScanFailed(errorCode: Int) {
-            super.onScanFailed(errorCode)
-        }
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_scan_beacon)
         supportActionBar?.setHomeButtonEnabled(true)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        progressBar.isIndeterminate = true
         lista_dispositivos = ArrayAdapter(this@ScanBeaconActivity, R.layout.list_layout)
         beacon_lista.adapter = lista_dispositivos
         beacon_lista.onItemClickListener = this
@@ -128,6 +127,22 @@ class ScanBeaconActivity : AppCompatActivity(), AdapterView.OnItemClickListener 
                 scanner.startScan(callback)
             }
 
+        }
+        scanner_controle_btn.setOnClickListener { view ->
+            view as Button
+            if(escaneando)
+            {
+                view.setText(R.string.iniciar_scanner)
+                progressBar.visibility = View.INVISIBLE
+                scanner.stopScan(callback)
+            }
+            else
+            {
+                view.setText(R.string.parar_scanner)
+                progressBar.visibility = View.VISIBLE
+                scanner.startScan(callback)
+            }
+            escaneando = !escaneando
         }
     }
 

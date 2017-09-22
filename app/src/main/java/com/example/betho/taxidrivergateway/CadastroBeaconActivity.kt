@@ -11,10 +11,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import kotlinx.android.synthetic.main.activity_cadastro_beacon.*
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.db.select
@@ -24,6 +21,7 @@ import java.util.*
 
 class CadastroBeaconActivity : AppCompatActivity(), AdapterView.OnItemClickListener {
     private val lista_rssi = Hashtable<String,String>()
+    private var escaneando = true
     override fun onItemClick(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
         val view = p1 as TextView
         val mac_dispositivo = view.text.toString()
@@ -105,6 +103,7 @@ class CadastroBeaconActivity : AppCompatActivity(), AdapterView.OnItemClickListe
         setContentView(R.layout.activity_cadastro_beacon)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
+        progressbar.isIndeterminate = true
         lista_dispositivos = ArrayAdapter(this@CadastroBeaconActivity,R.layout.list_layout)
         listview_dispositivos.adapter = lista_dispositivos
         listview_dispositivos.onItemClickListener = this
@@ -117,6 +116,22 @@ class CadastroBeaconActivity : AppCompatActivity(), AdapterView.OnItemClickListe
                 scanner.startScan(callback)
             }
 
+        }
+        controle_scanner_btn.setOnClickListener { view ->
+            view as Button
+            if(escaneando)
+            {
+                view.setText(R.string.iniciar_scanner)
+                scanner.stopScan(callback)
+                progressbar.visibility = View.INVISIBLE
+            }
+            else
+            {
+                view.setText(R.string.parar_scanner)
+                scanner.startScan(callback)
+                progressbar.visibility = View.VISIBLE
+            }
+            escaneando = !escaneando
         }
     }
 

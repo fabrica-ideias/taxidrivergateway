@@ -24,4 +24,8 @@ class EncontraBle {
     val iniciaScan = { callback : ScanCallback ->
         getBtScanner().startScan(callback)
     }
+
+    val paraScan = { callback : ScanCallback ->
+        getBtScanner().stopScan(callback)
+    }
 }

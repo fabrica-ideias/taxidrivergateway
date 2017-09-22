@@ -90,7 +90,7 @@ class RelatorioCarroActivity : AppCompatActivity(), AdapterView.OnItemClickListe
                                 is TextView->
                                 {
                                     view.textSize = 15f
-                                    view.padding = dip(8)
+                                    view.padding = dip(5)
                                 }
                                 is LinearLayout->
                                 {
