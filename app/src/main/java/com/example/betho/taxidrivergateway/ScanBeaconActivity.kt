@@ -39,7 +39,7 @@ class ScanBeaconActivity : AppCompatActivity(), AdapterView.OnItemClickListener 
                                     padding = dip(10)
                                 }
                                 textView{
-                                    text = lista_rssi[texto].toString()
+                                    text = listarssi[texto].toString()
                                 }
                             }
                             linearLayout {
@@ -49,7 +49,7 @@ class ScanBeaconActivity : AppCompatActivity(), AdapterView.OnItemClickListener 
                                     padding = dip(10)
                                 }
                                 textView {
-                                    text = distancia(lista_rssi[texto]!!)
+                                    text = distancia(listarssi[texto]!!)
 
                                 }
                             }
@@ -66,18 +66,47 @@ class ScanBeaconActivity : AppCompatActivity(), AdapterView.OnItemClickListener 
         }
     }
 
-    private var bt_adapter : BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
+    private var btadapter : BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
     private lateinit var scanner : BluetoothLeScanner
     private lateinit var lista_dispositivos : ArrayAdapter<String>
-    private val lista_rssi = Hashtable<String,Int>()
+    private val listarssi = Hashtable<String,Int>()
     private var dialog: AlertBuilder<DialogInterface>? = null
+    private val rssicalibrado = Hashtable<String,Double>()
+    private val deteccoesrssibeacon = Hashtable<String,ArrayList<Int>>()
+    private val calibragemRssi = { rssi : Int, mac: String-> //identifica valor adequado do rssi a 1 metro do beacon em específico
+        try
+        {
+            deteccoesrssibeacon[mac]!!.add(rssi)
+        }catch (e: Exception)
+        {
+            deteccoesrssibeacon.put(mac,ArrayList())
+        }
+        try {
+            var soma = 0
+            val rssimedio : Int
+            if(deteccoesrssibeacon[mac]!!.size >= 20)
+            {
+                for(i in 0 until deteccoesrssibeacon.size)
+                    soma+=deteccoesrssibeacon[mac]!![i]
+                rssimedio = soma/deteccoesrssibeacon.size
+                rssicalibrado.put(mac,rssimedio.toDouble())
+            }
+        }catch (e: KotlinNullPointerException)
+        {
+            e.printStackTrace()
+        }catch (e: NullPointerException)
+        {
+            e.printStackTrace()
+        }
+
+    }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when(resultCode)
         {
             Activity.RESULT_OK->
             {
-                scanner = bt_adapter!!.bluetoothLeScanner
+                scanner = btadapter!!.bluetoothLeScanner
                 scanner.startScan(callback)
             }
         }
@@ -98,7 +127,7 @@ class ScanBeaconActivity : AppCompatActivity(), AdapterView.OnItemClickListener 
                     {
                         lista_dispositivos.add(result.device.address)
                     }
-                    lista_rssi.put(result.device.address,result.rssi)
+                    listarssi.put(result.device.address,result.rssi)
 
                 }catch(e: Exception)
                 {
@@ -120,10 +149,10 @@ class ScanBeaconActivity : AppCompatActivity(), AdapterView.OnItemClickListener 
         beacon_lista.onItemClickListener = this
         when
         {
-            bt_adapter == null -> Toast.makeText(this@ScanBeaconActivity,R.string.bt_error, Toast.LENGTH_SHORT).show()
-            bt_adapter?.isEnabled == false -> enableBT()
+            btadapter == null -> Toast.makeText(this@ScanBeaconActivity,R.string.bt_error, Toast.LENGTH_SHORT).show()
+            btadapter?.isEnabled == false -> enableBT()
             else -> {
-                scanner = bt_adapter!!.bluetoothLeScanner
+                scanner = btadapter!!.bluetoothLeScanner
                 scanner.startScan(callback)
             }
 

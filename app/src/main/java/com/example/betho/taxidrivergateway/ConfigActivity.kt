@@ -44,14 +44,22 @@ class ConfigActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
         latencia.max = 10
         sensibilidade.setOnSeekBarChangeListener(this)
         latencia.setOnSeekBarChangeListener(this)
+        ip_servidor.setText(prefs.getString("ip",""))
+        ip_servidor.setSelection(ip_servidor.text.toString().length)
         ok_btn.setOnClickListener { _ ->
             editor.putInt("sensibilidade_valor",sensibilidade_valor.text.toString().toInt())
             editor.putInt("latencia_valor",latencia_valor.text.toString().toInt())
+            editor.putString("ip",ip_servidor.text.toString())
             editor.commit()
             finish()
         }
     }
 
+    override fun onResume() {
+        ip_servidor.setText(prefs.getString("ip",""))
+        ip_servidor.setSelection(ip_servidor.text.toString().length)
+        super.onResume()
+    }
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         finish()
         return super.onOptionsItemSelected(item)

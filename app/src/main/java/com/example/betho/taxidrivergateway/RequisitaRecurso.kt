@@ -2,6 +2,7 @@ package com.example.betho.taxidrivergateway
 
 import android.content.Context
 import android.os.AsyncTask
+import org.jetbrains.anko.alert
 import java.io.BufferedInputStream
 import java.net.HttpURLConnection
 import java.net.URL
@@ -29,6 +30,7 @@ class RequisitaRecurso(private val url: String, private val c: Context) : AsyncT
             {
                 val url = URL(url)
                 val urlConnection = url.openConnection() as HttpURLConnection
+                c.alert("teste") {  }
                 return try {
                     BufferedInputStream(urlConnection.inputStream)
                     true
@@ -41,7 +43,10 @@ class RequisitaRecurso(private val url: String, private val c: Context) : AsyncT
                 }
             }
             else ->
+            {
                 return false
+            }
+
         }
     }
     override fun onPostExecute(result: Boolean?) {

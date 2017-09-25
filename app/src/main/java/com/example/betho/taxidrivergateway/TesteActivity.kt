@@ -13,7 +13,7 @@ class TesteActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
         teste_btn.setOnClickListener { _ ->
-            val recurso = RequisitaRecurso("http://taxidrivercall.000webhostapp.com",this@TesteActivity)
+            val recurso = RequisitaRecurso("http://192.168.7.105/taxidrivercall/php",this@TesteActivity)
             recurso.execute()
         }
     }

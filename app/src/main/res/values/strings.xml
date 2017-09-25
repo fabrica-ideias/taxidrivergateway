@@ -28,6 +28,8 @@
     <string name="com_rede_info">Rede disponível</string>
     <string name="ip_gateway_label">IP do Dispositivo</string>
 
+    <string name="ip_servidor_app">IP do Servidor</string>
+
     <string name="numero_beacon_label">Beacon</string>
     <string name="ip_gateway_hint">IP do Gateway</string>
 

@@ -7,6 +7,7 @@ import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.support.design.widget.NavigationView
@@ -21,6 +22,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import org.jetbrains.anko.db.select
+import org.jetbrains.anko.defaultSharedPreferences
 import org.jetbrains.anko.toast
 import java.util.*
 
@@ -34,15 +36,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             if(cont>3)
             {
                 c as MainActivity
-                c.beacon_numero.text = "?"
+//                c.beacon_numero.text = "?"
             }
         }
         val setCont = { valor : Int->
             cont = valor
-        }
-
-        val getCont = {
-            cont
         }
     }
     private var bt_adapter : BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
@@ -55,6 +53,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private val deteccoes_rssi_beacon = Hashtable<String,ArrayList<Int>>()
     private val flags_envia_servidor = Hashtable<String,Boolean>()
     private lateinit var contask: Conttask
+    private lateinit var prefs : SharedPreferences
+    private var tempo_latencia = 0L
     private val enableBT = {
         val intent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
         startActivityForResult(intent,1)
@@ -109,11 +109,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
     override fun onStartTrackingTouch(p0: SeekBar?) {}
     override fun onStopTrackingTouch(p0: SeekBar?) {}
+    //envia detecção do beacon ao servidor
     private val notificaDeteccao = { mac : String ->
-        val requisitaRecurso = RequisitaRecurso("http://192.168.7.115/taxidrivercall/php/status.php?mac=$mac", this@MainActivity)
+        val requisitaRecurso = RequisitaRecurso("http://${prefs.getString("ip","")}/taxidrivercall/php/status.php?mac=$mac", this@MainActivity)
         requisitaRecurso.execute()
         flags_envia_servidor.put(mac,false)
     }
+    //callback que trata detecção do beacon pelo BleScanner
     private val callback = object : ScanCallback()
     {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
@@ -123,12 +125,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 val sensibilidade_distancia = sensibilidade_valor_label.text.toString().toInt()
                 val mac = result!!.device.address
                 try {
+                    Timer(true).schedule(intermitente, 0, tempo_latencia*1000)
+                    intermitente = null
                     if(!flags_envia_servidor[mac]!! && distancia(result.rssi,mac) <= 5)
                     {
                         contask.setCont(0)
                         notificaDeteccao(mac)
                     }
                 }catch (e: KotlinNullPointerException)
+                {
+                    e.printStackTrace()
+                }catch (e: NullPointerException)
                 {
                     e.printStackTrace()
                 }
@@ -203,14 +210,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         contask = Conttask(this@MainActivity)
         sensibilidade.setOnSeekBarChangeListener(this)
         latencia.setOnSeekBarChangeListener(this)
+        prefs = defaultSharedPreferences
         try {
-            var tempo_latencia = latencia_valor_label.text.toString().toLong()
+            tempo_latencia = latencia_valor_label.text.toString().toLong()
             if(tempo_latencia == 0L)
             {
                 tempo_latencia = 5L
             }
-            Timer(true).schedule(intermitente, 0, tempo_latencia*1000)
-            intermitente = null
             Timer(true).schedule(contask,0, 1000)
         }catch (e: UninitializedPropertyAccessException)
         {
@@ -283,11 +289,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Handle navigation view item clicks here.
         val id = item.itemId
+        scanner.stopScan(callback)
         when(id)
         {
             R.id.cadastro_beacon->
             {
-                scanner.stopScan(callback)
                 val intent = Intent(this@MainActivity, CadastroBeaconActivity::class.java)
                 startActivity(intent)
             }
