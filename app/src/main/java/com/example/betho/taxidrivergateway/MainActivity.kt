@@ -46,12 +46,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var bt_adapter : BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
     private lateinit var scanner : BluetoothLeScanner
     private lateinit var acessoBD : AcessoBD
-    private val sqlite = AcessoSQLite(this@MainActivity)
+    private var sqlite = AcessoSQLite(this@MainActivity)
     private var intermitente : Intermitente? = null
     private val mac_contador = Hashtable<String,Int>()
     private val rssi_calibrado = Hashtable<String,Double>()
     private val deteccoes_rssi_beacon = Hashtable<String,ArrayList<Int>>()
     private val flags_envia_servidor = Hashtable<String,Boolean>()
+    private val beacon_macs = ArrayList<String>()
     private lateinit var contask: Conttask
     private lateinit var prefs : SharedPreferences
     private var tempo_latencia = 0L
@@ -109,11 +110,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
     override fun onStartTrackingTouch(p0: SeekBar?) {}
     override fun onStopTrackingTouch(p0: SeekBar?) {}
-    //envia detecção do beacon ao servidor
+    //envia detecção do beacon ao servidor caso o beacon esteja cadastrado
     private val notificaDeteccao = { mac : String ->
-        val requisitaRecurso = RequisitaRecurso("http://${prefs.getString("ip","")}/taxidrivercall/php/status.php?mac=$mac", this@MainActivity)
-        requisitaRecurso.execute()
-        flags_envia_servidor.put(mac,false)
+        if(beacon_macs.contains(mac))
+        {
+            val requisitaRecurso = RequisitaRecurso("http://${prefs.getString("ip","")}/taxidrivercall/php/status.php?mac=$mac", this@MainActivity)
+            requisitaRecurso.execute()
+            flags_envia_servidor.put(mac,false)
+        }
     }
     //callback que trata detecção do beacon pelo BleScanner
     private val callback = object : ScanCallback()
@@ -196,6 +200,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         acessoBD.execute()
         acessoBD = AcessoBD("SELECT * FROM Carro inner join Situacao on situacaoid=fk_situacao inner join Posto on fk_posto=postoid",this@MainActivity, null, true)
         acessoBD.execute()
+        beacon_macs.clear()
+        sqlite.use { select("Beacon").exec {
+            while(this.moveToNext())
+            {
+                beacon_macs.add(this.getString(0))
+            }
+        } }
     }
     private val distancia = { rssi : Int,mac : String ->
         var rssiAtOneMetter = rssi_calibrado[mac]
