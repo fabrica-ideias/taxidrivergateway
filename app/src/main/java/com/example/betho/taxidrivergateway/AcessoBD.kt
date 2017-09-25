@@ -20,12 +20,13 @@ import java.util.*
 * Created by hugo on 04/09/17.
 */
 class AcessoBD(private val query: String, private val c: Context, private val dialog : Dialog?, private val actionFlag : Boolean) : AsyncTask<Unit,Unit,ResultSet>() {
+    private val prefs = c.defaultSharedPreferences
     private val user = "jedkdtu6vb5oo5o3"
     //private val user = "root"
     private val pass = "ps7auabtr43dftzs"
     //private val pass = ""
     private val url = "jdbc:mysql://ysp9sse09kl0tzxj.cbetxkdyhwsb.us-east-1.rds.amazonaws.com/du31xu75psg7waby"
-    //private val url = "jdbc:mysql://192.168.7.115/taxi_driver"
+    //private val url = "jdbc:mysql://${prefs.getString("ip","")}/taxi_driver"
     private val progressDialog = c.indeterminateProgressDialog(message = R.string.progresso_msg, title = R.string.progresso_tittle)
     private val dialogSucesso = {
         val aux = c as Activity

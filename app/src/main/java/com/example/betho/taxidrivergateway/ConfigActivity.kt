@@ -22,6 +22,13 @@ class ConfigActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
             {
                 latencia_valor.text = p1.toString()
             }
+            tempo_beacon->
+            {
+                if(p1<=3)
+                    tempo_beacon_valor.text = "3"
+                else
+                    tempo_beacon_valor.text = p1.toString()
+            }
         }
     }
 
@@ -42,13 +49,16 @@ class ConfigActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
         editor = prefs.edit()
         sensibilidade.max = 10
         latencia.max = 10
+        tempo_beacon.max = 10
         sensibilidade.setOnSeekBarChangeListener(this)
         latencia.setOnSeekBarChangeListener(this)
+        tempo_beacon.setOnSeekBarChangeListener(this)
         ip_servidor.setText(prefs.getString("ip",""))
         ip_servidor.setSelection(ip_servidor.text.toString().length)
         ok_btn.setOnClickListener { _ ->
             editor.putInt("sensibilidade_valor",sensibilidade_valor.text.toString().toInt())
             editor.putInt("latencia_valor",latencia_valor.text.toString().toInt())
+            editor.putInt("tempo_beacon",tempo_beacon_valor.text.toString().toInt())
             editor.putString("ip",ip_servidor.text.toString())
             editor.commit()
             finish()

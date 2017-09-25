@@ -12,9 +12,7 @@
         android:id="@+id/linearLayout2"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="81dp"
-        android:layout_marginStart="81dp"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="16dp"
         android:orientation="vertical"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -59,16 +57,17 @@
 
     <LinearLayout
         android:id="@+id/linearLayout"
-        android:layout_width="150dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="59dp"
+        android:layout_marginTop="24dp"
         android:orientation="vertical"
         app:layout_constraintLeft_toLeftOf="@+id/linearLayout2"
         app:layout_constraintRight_toRightOf="@+id/linearLayout2"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout2"
         tools:layout_constraintLeft_creator="1"
         tools:layout_constraintRight_creator="1"
-        tools:layout_constraintTop_creator="1">
+        tools:layout_constraintTop_creator="1"
+        app:layout_constraintHorizontal_bias="0.0">
 
         <TextView
             android:id="@+id/textView12"
@@ -116,10 +115,10 @@
         android:id="@+id/ip_servidor"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="100dp"
+        android:layout_marginBottom="134dp"
         android:layout_marginEnd="53dp"
         android:layout_marginStart="53dp"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="134dp"
         android:ems="10"
         android:hint="@string/ip_servidor_app"
         android:inputType="textPersonName"
@@ -131,5 +130,47 @@
         tools:layout_constraintLeft_creator="1"
         tools:layout_constraintRight_creator="1"
         tools:layout_constraintTop_creator="1" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        tools:layout_constraintTop_creator="1"
+        tools:layout_constraintRight_creator="1"
+        app:layout_constraintRight_toRightOf="@+id/linearLayout"
+        android:layout_marginTop="18dp"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+        tools:layout_constraintLeft_creator="1"
+        app:layout_constraintLeft_toLeftOf="@+id/linearLayout">
+
+        <TextView
+            android:id="@+id/textView10"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/manter_na_tela_label"
+            android:textAlignment="center" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <SeekBar
+                android:id="@+id/tempo_beacon"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:max="10"
+                android:min="3" />
+
+            <TextView
+                android:id="@+id/tempo_beacon_valor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/manter_na_tela"
+                android:textAlignment="center" />
+        </LinearLayout>
+    </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

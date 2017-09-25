@@ -14,7 +14,6 @@ import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.SeekBar
@@ -32,16 +31,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         private var cont = 0
         override fun run() {
             cont++
-            Log.d("cont", "$cont")
-            if(cont>3)
-            {
-                c as MainActivity
-//                c.beacon_numero.text = "?"
-            }
         }
         val setCont = { valor : Int->
             cont = valor
         }
+        val getCont = {cont}
     }
     private var bt_adapter : BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
     private lateinit var scanner : BluetoothLeScanner
@@ -124,6 +118,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
+            if(contask.getCont() >= prefs.getInt("tempo_beacon",3))
+            {
+                beacon_numero.setText(R.string.beacon_numero_txt)
+                mac_detectado.text = ""
+                distancia_valor.text = ""
+            }
             if(callbackType == ScanSettings.CALLBACK_TYPE_FIRST_MATCH || callbackType == ScanSettings.MATCH_MODE_AGGRESSIVE)
             {
                 val sensibilidade_distancia = sensibilidade_valor_label.text.toString().toInt()
@@ -189,9 +189,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     }
                 }
             }
-        }
-        override fun onScanFailed(errorCode: Int) {
-            super.onScanFailed(errorCode)
         }
     }
     private val recuperarDadosOnline = { // conecta com o servidor remoto para trazer os novos dados para o sqlite
