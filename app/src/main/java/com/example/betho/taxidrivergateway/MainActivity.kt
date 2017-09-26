@@ -14,6 +14,7 @@ import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.SeekBar
@@ -27,7 +28,7 @@ import java.util.*
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, SeekBar.OnSeekBarChangeListener {
-    inner class Conttask(private val c: Context): TimerTask() {
+    inner class Conttask: TimerTask() {
         private var cont = 0
         override fun run() {
             cont++
@@ -41,7 +42,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var scanner : BluetoothLeScanner
     private lateinit var acessoBD : AcessoBD
     private var sqlite = AcessoSQLite(this@MainActivity)
-    private var intermitente : Intermitente? = null
+    private lateinit var intermitente : Intermitente
     private val mac_contador = Hashtable<String,Int>()
     private val rssi_calibrado = Hashtable<String,Double>()
     private val deteccoes_rssi_beacon = Hashtable<String,ArrayList<Int>>()
@@ -50,6 +51,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var contask: Conttask
     private lateinit var prefs : SharedPreferences
     private var tempo_latencia = 0L
+    private val mac_ultimaDeteccao = Hashtable<String,String>()
+    private val tempo = GetTempo()
     private val enableBT = {
         val intent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
         startActivityForResult(intent,1)
@@ -99,11 +102,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             latencia->
             {
                 latencia_valor_label.text = p1.toString()
+                tempo_latencia = latencia_valor_label.text.toString().toLong()
+                Log.d("tempo de latencia", tempo_latencia.toString())
             }
         }
     }
     override fun onStartTrackingTouch(p0: SeekBar?) {}
-    override fun onStopTrackingTouch(p0: SeekBar?) {}
+    override fun onStopTrackingTouch(p0: SeekBar?) {
+    }
     //envia detecção do beacon ao servidor caso o beacon esteja cadastrado
     private val notificaDeteccao = { mac : String ->
         if(beacon_macs.contains(mac))
@@ -124,18 +130,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 mac_detectado.text = ""
                 distancia_valor.text = ""
             }
+
             if(callbackType == ScanSettings.CALLBACK_TYPE_FIRST_MATCH || callbackType == ScanSettings.MATCH_MODE_AGGRESSIVE)
             {
                 val sensibilidade_distancia = sensibilidade_valor_label.text.toString().toInt()
                 val mac = result!!.device.address
                 try {
-                    Timer(true).schedule(intermitente, 0, tempo_latencia*1000)
-                    intermitente = null
-                    if(!flags_envia_servidor[mac]!! && distancia(result.rssi,mac) <= 5)
-                    {
-                        contask.setCont(0)
-                        notificaDeteccao(mac)
-                    }
+                    val tempo_atual = tempo.getTempo().split(":")
+                    val minuto_atual = tempo_atual[1].toInt()
+
                 }catch (e: KotlinNullPointerException)
                 {
                     e.printStackTrace()
@@ -146,11 +149,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 if(distancia(result.rssi, mac) <= sensibilidade_distancia || sensibilidade_distancia == 0)
                 {
                     try {
-                        if(flags_envia_servidor[mac]!!)
-                        {
-                            contask.setCont(0)
-                            notificaDeteccao(mac)
-                        }
+
                     }catch (e: KotlinNullPointerException)
                     {
                         e.printStackTrace()
@@ -202,6 +201,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             while(this.moveToNext())
             {
                 beacon_macs.add(this.getString(0))
+                mac_ultimaDeteccao.put(this.getString(0),this.getString(4))
             }
         } }
     }
@@ -215,17 +215,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        contask = Conttask(this@MainActivity)
+        contask = Conttask()
         sensibilidade.setOnSeekBarChangeListener(this)
         latencia.setOnSeekBarChangeListener(this)
         prefs = defaultSharedPreferences
         try {
+            Timer(true).schedule(contask,0, 1000)
+            intermitente = Intermitente("",contask.getCont(),this@MainActivity)
             tempo_latencia = latencia_valor_label.text.toString().toLong()
             if(tempo_latencia == 0L)
             {
-                tempo_latencia = 5L
+                tempo_latencia = 3L
             }
-            Timer(true).schedule(contask,0, 1000)
         }catch (e: UninitializedPropertyAccessException)
         {
             e.printStackTrace()
@@ -235,11 +236,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }catch (e: NullPointerException)
         {
             e.printStackTrace()
+        }catch (e: IllegalArgumentException)
+        {
+            e.printStackTrace()
         }
         GetLocalHostTask(ip_gateway, getSystemService(Context.WIFI_SERVICE) as WifiManager).execute()
         setSupportActionBar(toolbar)
-        val toggle = ActionBarDrawerToggle(
-                this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
+        val toggle = ActionBarDrawerToggle(this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
         nav_view.setNavigationItemSelectedListener(this)

@@ -17,6 +17,7 @@ import org.jetbrains.anko.yesButton
 class CadastroBeaconDialog(private val c: Context, private val mac : String) : Dialog(c) {
     private var query : String = ""
     private val cadastroBeaconActivity = c as CadastroBeaconActivity
+    private val tempo = GetTempo()
     private val distancia = { rssi : Int ->
         val rssiAtOneMetter = -38.0
         val distance = Math.pow(10.0,(rssiAtOneMetter - rssi)/20)
@@ -32,14 +33,14 @@ class CadastroBeaconDialog(private val c: Context, private val mac : String) : D
             val carro = lista_carros.selectedItem.toString()
             if(carro.split("-")[0] == "0")
             {
-                query = "INSERT INTO Beacon VALUES ('$mac','${cadastroBeaconActivity.getRssi(mac)}',${distancia(cadastroBeaconActivity.getRssi(mac)!!.toInt()).toInt()},'${beacon_nome.text}',' ',0)"
+                query = "INSERT INTO Beacon VALUES ('$mac','${cadastroBeaconActivity.getRssi(mac)}',${distancia(cadastroBeaconActivity.getRssi(mac)!!.toInt()).toInt()},'${beacon_nome.text}','${tempo.getTempo()}',0)"
                 acessoBD = AcessoBD(query, c, this@CadastroBeaconDialog, false)
                 acessoBD.execute()
             }
             else
             {
                 //query = "INSERT INTO Beacon VALUES (LAST_INSERT_ID(),'${beacon_nome.text}','${cadastroBeaconActivity.getRssi(mac)}',${distancia(cadastroBeaconActivity.getRssi(mac)!!.toInt())},'$mac');"
-                query = "INSERT INTO Beacon VALUES ('$mac','${cadastroBeaconActivity.getRssi(mac)}',${distancia(cadastroBeaconActivity.getRssi(mac)!!.toInt()).toShort()},'${beacon_nome.text}',' ',0);"
+                query = "INSERT INTO Beacon VALUES ('$mac','${cadastroBeaconActivity.getRssi(mac)}',${distancia(cadastroBeaconActivity.getRssi(mac)!!.toInt()).toShort()},'${beacon_nome.text}','${tempo.getTempo()}',0);"
                 val query2 = "UPDATE Carro SET fk_beacon=(SELECT MAX(mac) FROM Beacon WHERE carroid='$carro');"
                 c.alert(R.string.calibrar_aviso){
                     yesButton {
