@@ -2,6 +2,7 @@ package com.example.betho.taxidrivergateway
 
 import android.content.Context
 import android.os.AsyncTask
+import android.util.Log
 import org.jetbrains.anko.alert
 import java.io.BufferedInputStream
 import java.net.HttpURLConnection
@@ -17,6 +18,7 @@ class RequisitaRecurso(private val url: String, private val c: Context) : AsyncT
                 val url = URL(url)
                 val urlConnection = url.openConnection() as HttpURLConnection
                 return try {
+                    Log.d("executou","requisita recurso")
                     BufferedInputStream(urlConnection.inputStream)
                     true
                 } catch (e: Exception) {

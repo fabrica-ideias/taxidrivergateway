@@ -22,9 +22,11 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import org.jetbrains.anko.db.select
+import org.jetbrains.anko.db.update
 import org.jetbrains.anko.defaultSharedPreferences
 import org.jetbrains.anko.toast
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, SeekBar.OnSeekBarChangeListener {
@@ -50,8 +52,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private val beacon_macs = ArrayList<String>()
     private lateinit var contask: Conttask
     private lateinit var prefs : SharedPreferences
+    private lateinit var editor : SharedPreferences.Editor
     private var tempo_latencia = 0L
     private val mac_ultimaDeteccao = Hashtable<String,String>()
+    private val mac_proximaDeteccao = Hashtable<String,Long>()
     private val tempo = GetTempo()
     private val enableBT = {
         val intent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
@@ -103,7 +107,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             {
                 latencia_valor_label.text = p1.toString()
                 tempo_latencia = latencia_valor_label.text.toString().toLong()
-                Log.d("tempo de latencia", tempo_latencia.toString())
             }
         }
     }
@@ -136,13 +139,35 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 val sensibilidade_distancia = sensibilidade_valor_label.text.toString().toInt()
                 val mac = result!!.device.address
                 try {
-                    val tempo_atual = tempo.getTempo().split(":")
-                    val minuto_atual = tempo_atual[1].toInt()
-
+                    val tempo_atual = System.currentTimeMillis()
+                    if(mac_proximaDeteccao[mac] == null)
+                    {
+                        Log.d("set inicial tabela","rodou")
+                        notificaDeteccao(mac)
+                        mac_proximaDeteccao.put(mac,tempo_atual+TimeUnit.MINUTES.toMillis(tempo_latencia))
+                    }
+                    val proxima_deteccao = mac_proximaDeteccao[mac]
+                    var dif_tempo = proxima_deteccao!!-tempo_atual
+                    if(dif_tempo<0)
+                        dif_tempo *= -1
+                    Log.d("tempo atual", tempo_atual.toString())
+                    Log.d("prox deteccao", proxima_deteccao.toString())
+                    Log.d("diff", dif_tempo.toString())
+                    if(dif_tempo - proxima_deteccao == 0L)
+                    {
+                        notificaDeteccao(mac)
+                        sqlite.use { update("Beacon","ultimadeteccao" to tempo.getTempo()).whereArgs("mac={beaconMac}", "beaconMac" to mac) }
+                        Log.d("log","beacon processado")
+                        mac_ultimaDeteccao.put(mac,tempo.getTempo())
+                        mac_proximaDeteccao.put(mac,tempo_atual+TimeUnit.MINUTES.toMillis(tempo_latencia))
+                    }
                 }catch (e: KotlinNullPointerException)
                 {
                     e.printStackTrace()
                 }catch (e: NullPointerException)
+                {
+                    e.printStackTrace()
+                }catch (e: IndexOutOfBoundsException)
                 {
                     e.printStackTrace()
                 }
@@ -190,20 +215,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
     }
+    val setMacsUltimaDeteccao = { chave: String, obj: String ->
+        mac_ultimaDeteccao.put(chave, obj)
+    }
+    val setBeaconMacs = { obj: String ->
+        beacon_macs.add(obj)
+    }
     private val recuperarDadosOnline = { // conecta com o servidor remoto para trazer os novos dados para o sqlite
+        beacon_macs.clear()
         sqlite.onUpgrade(sqlite.writableDatabase,sqlite.writableDatabase.version,sqlite.writableDatabase.version+1)
         acessoBD = AcessoBD("SELECT * FROM Beacon",this@MainActivity,null,true)
         acessoBD.execute()
         acessoBD = AcessoBD("SELECT * FROM Carro inner join Situacao on situacaoid=fk_situacao inner join Posto on fk_posto=postoid",this@MainActivity, null, true)
         acessoBD.execute()
-        beacon_macs.clear()
-        sqlite.use { select("Beacon").exec {
-            while(this.moveToNext())
-            {
-                beacon_macs.add(this.getString(0))
-                mac_ultimaDeteccao.put(this.getString(0),this.getString(4))
-            }
-        } }
     }
     private val distancia = { rssi : Int,mac : String ->
         var rssiAtOneMetter = rssi_calibrado[mac]
@@ -219,14 +243,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         sensibilidade.setOnSeekBarChangeListener(this)
         latencia.setOnSeekBarChangeListener(this)
         prefs = defaultSharedPreferences
+        editor = prefs.edit()
         try {
             Timer(true).schedule(contask,0, 1000)
-            intermitente = Intermitente("",contask.getCont(),this@MainActivity)
             tempo_latencia = latencia_valor_label.text.toString().toLong()
-            if(tempo_latencia == 0L)
-            {
-                tempo_latencia = 3L
-            }
         }catch (e: UninitializedPropertyAccessException)
         {
             e.printStackTrace()
