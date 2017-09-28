@@ -22,11 +22,10 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import org.jetbrains.anko.db.select
-import org.jetbrains.anko.db.update
 import org.jetbrains.anko.defaultSharedPreferences
 import org.jetbrains.anko.toast
 import java.util.*
-import java.util.concurrent.TimeUnit
+import kotlin.collections.ArrayList
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, SeekBar.OnSeekBarChangeListener {
@@ -35,9 +34,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         override fun run() {
             cont++
         }
-        val setCont = { valor : Int->
-            cont = valor
-        }
         val getCont = {cont}
     }
     private var bt_adapter : BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
@@ -45,7 +41,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var acessoBD : AcessoBD
     private var sqlite = AcessoSQLite(this@MainActivity)
     private lateinit var intermitente : Intermitente
-    private val mac_contador = Hashtable<String,Int>()
     private val rssi_calibrado = Hashtable<String,Double>()
     private val deteccoes_rssi_beacon = Hashtable<String,ArrayList<Int>>()
     private val flags_envia_servidor = Hashtable<String,Boolean>()
@@ -53,10 +48,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var contask: Conttask
     private lateinit var prefs : SharedPreferences
     private lateinit var editor : SharedPreferences.Editor
-    private var tempo_latencia = 0L
+    private var tempo_latencia = 0
     private val mac_ultimaDeteccao = Hashtable<String,String>()
-    private val mac_proximaDeteccao = Hashtable<String,Long>()
+    private val detectados = ArrayList<String>()
     private val tempo = GetTempo()
+    private var sensibilidade_distancia = 0
     private val enableBT = {
         val intent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
         startActivityForResult(intent,1)
@@ -102,19 +98,23 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             sensibilidade->
             {
                 sensibilidade_valor_label.text = p1.toString()
+                sensibilidade_distancia=p1
             }
             latencia->
             {
                 latencia_valor_label.text = p1.toString()
-                tempo_latencia = latencia_valor_label.text.toString().toLong()
+                tempo_latencia = latencia_valor_label.text.toString().toInt()
             }
         }
     }
     override fun onStartTrackingTouch(p0: SeekBar?) {}
     override fun onStopTrackingTouch(p0: SeekBar?) {
+        if(tempo_latencia == 0)
+            tempo_latencia = 1
+            Timer(true).schedule(Intermitente(this@MainActivity), 0 , (tempo_latencia*1000).toLong())
     }
     //envia detecção do beacon ao servidor caso o beacon esteja cadastrado
-    private val notificaDeteccao = { mac : String ->
+    val notificaDeteccao = { mac : String ->
         if(beacon_macs.contains(mac))
         {
             val requisitaRecurso = RequisitaRecurso("http://${prefs.getString("ip","")}/taxidrivercall/php/status.php?mac=$mac", this@MainActivity)
@@ -122,45 +122,47 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             flags_envia_servidor.put(mac,false)
         }
     }
+    val getDetectados = {
+        detectados
+    }
+    val setDetectados = { lista : ArrayList<String> ->
+        detectados.clear()
+        detectados.addAll(lista)
+    }
     //callback que trata detecção do beacon pelo BleScanner
     private val callback = object : ScanCallback()
     {
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
             super.onScanResult(callbackType, result)
-            if(contask.getCont() >= prefs.getInt("tempo_beacon",3))
-            {
-                beacon_numero.setText(R.string.beacon_numero_txt)
-                mac_detectado.text = ""
-                distancia_valor.text = ""
-            }
 
             if(callbackType == ScanSettings.CALLBACK_TYPE_FIRST_MATCH || callbackType == ScanSettings.MATCH_MODE_AGGRESSIVE)
             {
-                val sensibilidade_distancia = sensibilidade_valor_label.text.toString().toInt()
+                Log.d("sensibilidade",sensibilidade_distancia.toString())
                 val mac = result!!.device.address
                 try {
-                    val tempo_atual = System.currentTimeMillis()
-                    if(mac_proximaDeteccao[mac] == null)
-                    {
-                        Log.d("set inicial tabela","rodou")
-                        notificaDeteccao(mac)
-                        mac_proximaDeteccao.put(mac,tempo_atual+TimeUnit.MINUTES.toMillis(tempo_latencia))
-                    }
-                    val proxima_deteccao = mac_proximaDeteccao[mac]
-                    var dif_tempo = proxima_deteccao!!-tempo_atual
-                    if(dif_tempo<0)
-                        dif_tempo *= -1
-                    Log.d("tempo atual", tempo_atual.toString())
-                    Log.d("prox deteccao", proxima_deteccao.toString())
-                    Log.d("diff", dif_tempo.toString())
-                    if(dif_tempo - proxima_deteccao == 0L)
-                    {
-                        notificaDeteccao(mac)
-                        sqlite.use { update("Beacon","ultimadeteccao" to tempo.getTempo()).whereArgs("mac={beaconMac}", "beaconMac" to mac) }
-                        Log.d("log","beacon processado")
-                        mac_ultimaDeteccao.put(mac,tempo.getTempo())
-                        mac_proximaDeteccao.put(mac,tempo_atual+TimeUnit.MINUTES.toMillis(tempo_latencia))
-                    }
+//                    val tempo_atual = System.currentTimeMillis()
+//                    if(mac_proximaDeteccao[mac] == null) {
+//                        Log.d("set inicial tabela", "rodou")
+//                        notificaDeteccao(mac)
+//                        mac_proximaDeteccao.put(mac, tempo_atual + TimeUnit.MINUTES.toMillis(tempo_latencia))
+//                    }
+//                    val proxima_deteccao = mac_proximaDeteccao[mac]
+//                    var dif_tempo = tempoDiff(mac_proximaDeteccao[mac]!!, tempo_atual)
+//                    if(dif_tempo<0)
+//                        dif_tempo *= -1
+//                    Log.d("tempo atual", tempo_atual.toString())
+//                    Log.d("prox deteccao", mac_proximaDeteccao[mac].toString())
+//                    Log.d("diff", Math.floor(dif_tempo.toDouble()/60000).toString())
+//                    if(Math.floor(dif_tempo.toDouble()/60000) - Math.floor(proxima_deteccao!!.toDouble()/60000) == 0.0)
+//                    {
+//                        notificaDeteccao(mac)
+//                        sqlite.use { update("Beacon","ultimadeteccao" to tempo.getTempo()).whereArgs("mac={beaconMac}", "beaconMac" to mac) }
+//                        Log.d("processamento","beacon processado")
+//                        mac_ultimaDeteccao.put(mac,tempo.getTempo())
+//                        mac_proximaDeteccao.put(mac,tempo_atual+TimeUnit.MINUTES.toMillis(tempo_latencia))
+//                    }
+                    if(!detectados.contains(mac) && distancia(result.rssi, mac) <= sensibilidade_distancia)
+                        detectados.add(mac)
                 }catch (e: KotlinNullPointerException)
                 {
                     e.printStackTrace()
@@ -171,32 +173,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 {
                     e.printStackTrace()
                 }
-                if(distancia(result.rssi, mac) <= sensibilidade_distancia || sensibilidade_distancia == 0)
+                if(distancia(result.rssi, mac) >= sensibilidade_distancia || sensibilidade_distancia == 0)
                 {
-                    try {
-
-                    }catch (e: KotlinNullPointerException)
-                    {
-                        e.printStackTrace()
-                    }
-
                     try {
                         if(rssi_calibrado[mac] == null)
                         {
                             calibragemRssi(result.rssi,mac)
-                        }
-                        when {
-                            mac_contador[mac] == null -> mac_contador[mac] = 1
-                            mac_contador[mac]!! < 3 -> {
-                                var aux = mac_contador[mac]
-                                if(aux != null)
-                                    aux+=1
-                                mac_contador[mac] = aux
-                            }
-                            else -> {
-                                intermitente = Intermitente(mac, mac_contador[mac]!!, this@MainActivity)
-                                mac_contador[mac] = 0
-                            }
                         }
                         sqlite.readableDatabase.select("Beacon").whereArgs("mac = {deviceMac}", "deviceMac" to mac).exec {
                             while(this.moveToNext())
@@ -246,7 +228,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         editor = prefs.edit()
         try {
             Timer(true).schedule(contask,0, 1000)
-            tempo_latencia = latencia_valor_label.text.toString().toLong()
+            tempo_latencia = latencia_valor_label.text.toString().toInt()
+            Timer(true).schedule(Intermitente(this@MainActivity), 0, 1000)
         }catch (e: UninitializedPropertyAccessException)
         {
             e.printStackTrace()
