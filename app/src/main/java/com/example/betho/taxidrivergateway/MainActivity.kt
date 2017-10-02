@@ -14,7 +14,6 @@ import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.SeekBar
@@ -25,6 +24,7 @@ import org.jetbrains.anko.db.select
 import org.jetbrains.anko.defaultSharedPreferences
 import org.jetbrains.anko.toast
 import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
 
 
@@ -39,8 +39,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var bt_adapter : BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
     private lateinit var scanner : BluetoothLeScanner
     private lateinit var acessoBD : AcessoBD
+    private lateinit var acessoDB2 : AcessoBD
     private var sqlite = AcessoSQLite(this@MainActivity)
-    private lateinit var intermitente : Intermitente
+    //private lateinit var intermitente : Intermitente
     private val rssi_calibrado = Hashtable<String,Double>()
     private val deteccoes_rssi_beacon = Hashtable<String,ArrayList<Int>>()
     private val flags_envia_servidor = Hashtable<String,Boolean>()
@@ -51,7 +52,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var tempo_latencia = 0
     private val mac_ultimaDeteccao = Hashtable<String,String>()
     private val detectados = ArrayList<String>()
-    private val tempo = GetTempo()
+    //private val tempo = GetTempo()
     private var sensibilidade_distancia = 0
     private val enableBT = {
         val intent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
@@ -109,15 +110,25 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
     override fun onStartTrackingTouch(p0: SeekBar?) {}
     override fun onStopTrackingTouch(p0: SeekBar?) {
-        if(tempo_latencia == 0)
-            tempo_latencia = 1
-            Timer(true).schedule(Intermitente(this@MainActivity), 0 , (tempo_latencia*1000).toLong())
+        when(p0)
+        {
+            latencia->
+            {
+                if(tempo_latencia == 0)
+                    tempo_latencia = 1
+                //Timer(true).schedule(Intermitente(this@MainActivity, (tempo_latencia*1000).toLong()), 0 , (tempo_latencia*1000).toLong())
+                val query = "UPDATE Configuracao SET beacon_tempo='$tempo_latencia' WHERE idconfig=1"
+                acessoBD = AcessoBD(query,this@MainActivity,null,false)
+                acessoBD.execute()
+            }
+        }
     }
     //envia detecção do beacon ao servidor caso o beacon esteja cadastrado
-    val notificaDeteccao = { mac : String ->
+    val notificaDeteccao = { mac : String, deteccao: Long, proxdeteccao: Long ->
         if(beacon_macs.contains(mac))
         {
-            val requisitaRecurso = RequisitaRecurso("http://${prefs.getString("ip","")}/taxidrivercall/php/status.php?mac=$mac", this@MainActivity)
+            //val formater = SimpleDateFormat("hh:mm:ss", Locale.CANADA)
+            val requisitaRecurso = RequisitaRecurso("http://${prefs.getString("ip","")}/taxi/www/php/status.php?mac=$mac", this@MainActivity)
             requisitaRecurso.execute()
             flags_envia_servidor.put(mac,false)
         }
@@ -129,6 +140,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         detectados.clear()
         detectados.addAll(lista)
     }
+    val delDetectado = { obj: String->
+        detectados.remove(obj)
+    }
     //callback que trata detecção do beacon pelo BleScanner
     private val callback = object : ScanCallback()
     {
@@ -137,32 +151,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             if(callbackType == ScanSettings.CALLBACK_TYPE_FIRST_MATCH || callbackType == ScanSettings.MATCH_MODE_AGGRESSIVE)
             {
-                Log.d("sensibilidade",sensibilidade_distancia.toString())
                 val mac = result!!.device.address
                 try {
-//                    val tempo_atual = System.currentTimeMillis()
-//                    if(mac_proximaDeteccao[mac] == null) {
-//                        Log.d("set inicial tabela", "rodou")
-//                        notificaDeteccao(mac)
-//                        mac_proximaDeteccao.put(mac, tempo_atual + TimeUnit.MINUTES.toMillis(tempo_latencia))
-//                    }
-//                    val proxima_deteccao = mac_proximaDeteccao[mac]
-//                    var dif_tempo = tempoDiff(mac_proximaDeteccao[mac]!!, tempo_atual)
-//                    if(dif_tempo<0)
-//                        dif_tempo *= -1
-//                    Log.d("tempo atual", tempo_atual.toString())
-//                    Log.d("prox deteccao", mac_proximaDeteccao[mac].toString())
-//                    Log.d("diff", Math.floor(dif_tempo.toDouble()/60000).toString())
-//                    if(Math.floor(dif_tempo.toDouble()/60000) - Math.floor(proxima_deteccao!!.toDouble()/60000) == 0.0)
-//                    {
-//                        notificaDeteccao(mac)
-//                        sqlite.use { update("Beacon","ultimadeteccao" to tempo.getTempo()).whereArgs("mac={beaconMac}", "beaconMac" to mac) }
-//                        Log.d("processamento","beacon processado")
-//                        mac_ultimaDeteccao.put(mac,tempo.getTempo())
-//                        mac_proximaDeteccao.put(mac,tempo_atual+TimeUnit.MINUTES.toMillis(tempo_latencia))
-//                    }
-                    if(!detectados.contains(mac) && distancia(result.rssi, mac) <= sensibilidade_distancia)
-                        detectados.add(mac)
+//                    if(!detectados.contains(mac) && distancia(result.rssi, mac) >= sensibilidade_distancia)
+//                        detectados.add(mac)
+                    notificaDeteccao(mac, System.currentTimeMillis(), System.currentTimeMillis()+TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis()))
                 }catch (e: KotlinNullPointerException)
                 {
                     e.printStackTrace()
@@ -229,7 +222,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         try {
             Timer(true).schedule(contask,0, 1000)
             tempo_latencia = latencia_valor_label.text.toString().toInt()
-            Timer(true).schedule(Intermitente(this@MainActivity), 0, 1000)
+            Timer(true).schedule(Intermitente(this@MainActivity, (tempo_latencia*1000).toLong()), 0, 1000)
+            val query = "UPDATE Configuracao SET beacon_tempo='$tempo_latencia' WHERE idconfig=1"
+            acessoDB2 = AcessoBD(query,this@MainActivity,null,false)
+            acessoDB2.execute()
         }catch (e: UninitializedPropertyAccessException)
         {
             e.printStackTrace()
