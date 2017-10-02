@@ -28,7 +28,9 @@
     <string name="com_rede_info">Rede disponível</string>
     <string name="ip_gateway_label">IP do Dispositivo</string>
 
+    <string name="ip_banco">IP do Banco de Dados</string>
     <string name="ip_servidor_app">IP do Servidor</string>
+    <string name="banco_nome">Nome do Banco</string>
     <string name="manter_na_tela">3</string>
     <string name="manter_na_tela_label">Beacon na tela</string>
 

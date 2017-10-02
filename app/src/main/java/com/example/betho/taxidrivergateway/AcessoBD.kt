@@ -26,7 +26,7 @@ class AcessoBD(private val query: String, private val c: Context, private val di
     //private val pass = "ps7auabtr43dftzs"
     private val pass = "fi2108"
     //private val url = "jdbc:mysql://ysp9sse09kl0tzxj.cbetxkdyhwsb.us-east-1.rds.amazonaws.com/du31xu75psg7waby"
-    private val url = "jdbc:mysql://186.213.56.92/du31xu75psg7waby"
+    private val url = "jdbc:mysql://${prefs.getString("ip_banco","")}/du31xu75psg7waby"
     private val progressDialog = c.indeterminateProgressDialog(message = R.string.progresso_msg, title = R.string.progresso_tittle)
     private val dialogSucesso = {
         val aux = c as Activity
