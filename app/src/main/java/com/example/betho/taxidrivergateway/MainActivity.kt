@@ -20,9 +20,8 @@ import android.widget.SeekBar
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
+import org.jetbrains.anko.*
 import org.jetbrains.anko.db.select
-import org.jetbrains.anko.defaultSharedPreferences
-import org.jetbrains.anko.toast
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
@@ -219,6 +218,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         latencia.setOnSeekBarChangeListener(this)
         prefs = defaultSharedPreferences
         editor = prefs.edit()
+        if(prefs.getString("ip","").trim() == "" || prefs.getString("ip_banco","").trim() == "" || prefs.getString("banco_nome","").trim() == "" || prefs.getString("banco_login","").trim() == "" || prefs.getString("senha_banco","").trim() == "")
+        {
+            alert(R.string.config_alert_title) {
+                customView {
+                    textView {
+                        text = getString(R.string.config_alert_text)
+                        padding = dip(20)
+                    }
+                }
+                yesButton {
+                    val intent = Intent(this@MainActivity, ConfigActivity::class.java)
+                    startActivity(intent)
+                }
+                noButton {  }
+            }.show()
+        }
         try {
             Timer(true).schedule(contask,0, 1000)
             tempo_latencia = latencia_valor_label.text.toString().toInt()

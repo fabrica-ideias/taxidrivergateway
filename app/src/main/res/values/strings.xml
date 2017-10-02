@@ -31,8 +31,13 @@
     <string name="ip_banco">IP do Banco de Dados</string>
     <string name="ip_servidor_app">IP do Servidor</string>
     <string name="banco_nome">Nome do Banco</string>
+    <string name="banco_login">Usuário do banco</string>
+    <string name="banco_senha">Senha do banco</string>
     <string name="manter_na_tela">3</string>
     <string name="manter_na_tela_label">Beacon na tela</string>
+
+    <string name="config_alert_title">Configurações não definidas</string>
+    <string name="config_alert_text">Algumas configurações estão faltando. \nIr ao menu de configuração agora?</string>
 
     <string name="numero_beacon_label">Beacon</string>
     <string name="ip_gateway_hint">IP do Gateway</string>
