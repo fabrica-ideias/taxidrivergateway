@@ -4,6 +4,7 @@ import android.app.Dialog
 import android.content.Context
 import android.os.AsyncTask
 import android.os.Bundle
+import android.os.Looper
 import android.util.Log
 import kotlinx.android.synthetic.main.cadastro_beacon_dialog_layout.*
 import org.jetbrains.anko.alert
@@ -40,13 +41,15 @@ class CadastroBeaconDialog(private val c: Context, private val mac : String) : D
             else
             {
                 //query = "INSERT INTO Beacon VALUES (LAST_INSERT_ID(),'${beacon_nome.text}','${cadastroBeaconActivity.getRssi(mac)}',${distancia(cadastroBeaconActivity.getRssi(mac)!!.toInt())},'$mac');"
-                query = "INSERT INTO Beacon VALUES ('$mac','${cadastroBeaconActivity.getRssi(mac)}',${distancia(cadastroBeaconActivity.getRssi(mac)!!.toInt()).toShort()},'${beacon_nome.text}','${tempo.getTempo()}',0);"
-                val query2 = "UPDATE Carro SET fk_beacon=(SELECT MAX(mac) FROM Beacon WHERE carroid='$carro');"
+                query = "INSERT INTO Beacon VALUES ('$mac','${cadastroBeaconActivity.getRssi(mac)}',${distancia(cadastroBeaconActivity.getRssi(mac)!!.toInt()).toShort()},'${beacon_nome.text}',0, (NOW()), (NOW()));"
+                val query2 = "UPDATE Carro SET fk_beacon='$mac' WHERE carroid='${carro.trim()}';"
                 c.alert(R.string.calibrar_aviso){
                     yesButton {
                         acessoBD = AcessoBD(query, c, this@CadastroBeaconDialog, false)
                         acessoBD.execute()
                         doAsync {
+                            if(Looper.myLooper() == null)
+                                Looper.prepare()
                             while(acessoBD.status == AsyncTask.Status.RUNNING)
                             {
                                 Log.d("status task",acessoBD.status.toString())

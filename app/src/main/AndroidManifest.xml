@@ -14,7 +14,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+    android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
@@ -33,6 +33,7 @@
         <activity android:name=".CadastroCarroActivity" />
         <activity android:name=".RelatorioCarroActivity" />
         <activity android:name=".ConfigActivity"></activity>
+        <service android:name=".BTLeService" />
     </application>
 
 </manifest>

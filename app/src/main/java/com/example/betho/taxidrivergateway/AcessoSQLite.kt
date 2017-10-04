@@ -16,7 +16,7 @@ class AcessoSQLite(c: Context) : ManagedSQLiteOpenHelper(c,"beacons",null,1) {
     private val MAC = "mac"
     private val ULTIMA_DETECCAO = "ultimadeteccao"
     private val PASSAGENS = "passagens"
-    private val PROXIMA_DETECCAO = "proximadeteccao"
+    private val PROXIMA_DETECCAO = "proxima_deteccao"
     //atributos de carro
     private val CARROID = "carroid"
     private val FKBEACON = "fk_beacon"
