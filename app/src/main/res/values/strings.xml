@@ -3,6 +3,7 @@
     <string name="ok_txt">OK</string>
     <string name="sqlite_error">Um erro ocorreu na recuperação de dados do banco local</string>
     <string name="conexao_error">Erro ao enviar requisição ao servidor de aplicação</string>
+    <string name="conexao_ok">Conexão Disponível</string>
     <string name="content_description_app_logo_menu">Logo do Aplicativo</string>
 
     <string name="app_name">TaxiDriverGateway</string>

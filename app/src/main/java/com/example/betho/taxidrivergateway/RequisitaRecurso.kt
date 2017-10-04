@@ -2,8 +2,9 @@ package com.example.betho.taxidrivergateway
 
 import android.content.Context
 import android.os.AsyncTask
-import android.util.Log
-import org.jetbrains.anko.alert
+import android.os.Looper
+import org.jetbrains.anko.longToast
+import org.jetbrains.anko.toast
 import java.io.BufferedInputStream
 import java.net.HttpURLConnection
 import java.net.URL
@@ -18,7 +19,6 @@ class RequisitaRecurso(private val url: String, private val c: Context) : AsyncT
                 val url = URL(url)
                 val urlConnection = url.openConnection() as HttpURLConnection
                 return try {
-                    Log.d("executou","requisita recurso")
                     BufferedInputStream(urlConnection.inputStream)
                     true
                 } catch (e: Exception) {
@@ -30,9 +30,10 @@ class RequisitaRecurso(private val url: String, private val c: Context) : AsyncT
             }
             is TesteActivity->
             {
+                if(Looper.myLooper() == null)
+                    Looper.prepare()
                 val url = URL(url)
                 val urlConnection = url.openConnection() as HttpURLConnection
-                c.alert("teste") {  }
                 return try {
                     BufferedInputStream(urlConnection.inputStream)
                     true
@@ -52,6 +53,20 @@ class RequisitaRecurso(private val url: String, private val c: Context) : AsyncT
         }
     }
     override fun onPostExecute(result: Boolean?) {
+        when(c)
+        {
+            is TesteActivity->
+            {
+                if(result!!)
+                {
+                    c.toast(R.string.conexao_ok)
+                }
+                else
+                {
+                    c.longToast(R.string.conexao_error)
+                }
+            }
+        }
         super.onPostExecute(result)
     }
 }

@@ -83,7 +83,6 @@ class AcessoBD(private val query: String, private val c: Context, private val di
                         c.toast("Não há carros cadastrados")
                     }
                     dialog?.lista_carros?.adapter = arrayAdapter
-                    Log.d("lista carros",arrayAdapter.toString())
                 }
                 else
                 {
