@@ -8,7 +8,6 @@ import android.view.Gravity
 import android.view.MenuItem
 import android.widget.EditText
 import android.widget.LinearLayout
-import kotlinx.android.synthetic.main.activity_config.*
 import org.jetbrains.anko.*
 import org.jetbrains.anko.sdk25.coroutines.onClick
 
